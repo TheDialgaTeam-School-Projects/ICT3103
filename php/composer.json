@@ -1,0 +1,24 @@
+{
+  "name": "teamwork/project",
+  "description": "ICT3103/ICT3203 Secure Software Development Project",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Yong Jian Ming",
+      "email": "1801586@sit.singaporetech.edu.sg"
+    }
+  ],
+  "version": "1.0.0",
+  "homepage": "https://teamwork.sitict.net",
+  "readme": "../README.md",
+  "autoload": {
+    "psr-4": {
+      "teamwork\\": "src/"
+    }
+  },
+  "require": {
+    "php": "^7.4",
+    "ext-mysqli": "*"
+  }
+}

@@ -1,0 +1,12 @@
+.login-background {
+    background-image: url("/data/image/background.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position-x: center;
+}
+
+@media (min-width: 768px) {
+    .register-container {
+        height: 100vh;
+    }
+}

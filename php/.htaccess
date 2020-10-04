@@ -1,0 +1,16 @@
+ErrorDocument 401 default
+ErrorDocument 403 default
+ErrorDocument 404 default
+ErrorDocument 405 default
+ErrorDocument 406 default
+ErrorDocument 500 default
+ErrorDocument 501 default
+ErrorDocument 503 default
+
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+	RewriteRule ^(site\.webmanifest) - [NC,L]
+	RewriteRule ^(android-chrome-192x192\.png|android-chrome-512x512\.png|apple-touch-icon\.png|favicon\.ico|favicon-16x16\.png|favicon-32x32\.png) - [NC,L]
+	RewriteRule ^(js/|css/|data/) - [NC,L]
+	RewriteRule ^.*$ index.php [NC,L]
+</IfModule>

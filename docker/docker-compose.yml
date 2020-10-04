@@ -1,0 +1,51 @@
+version: "3.8"
+services:
+  database:
+    image: mysql:latest
+    container_name: ict3103-database
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+    - 3306:3306
+    volumes:
+    - ict3103-volume:/var/lib/mysql
+    networks:
+      - ict3103-network
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    restart: unless-stopped
+
+  website:
+    build:
+      args:
+        BUILD_ENVIRONMENT: ${BUILD_ENVIRONMENT}
+      context: ./php
+    image: ict3103/php:7.4-apache-${BUILD_ENVIRONMENT}
+    container_name: ict3103-website
+    ports:
+    - 80:80
+    - 443:443
+    volumes:
+      - ./../php:/var/www/html
+    networks:
+      - ict3103-network
+    environment:
+      APACHE_SERVER_ADMIN: ${APACHE_SERVER_ADMIN}
+      APACHE_SERVER_NAME: ${APACHE_SERVER_NAME}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USERNAME: ${MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    depends_on:
+      - database
+    restart: unless-stopped
+
+volumes:
+  ict3103-volume:
+    name: ict3103-volume
+
+networks:
+  ict3103-network:
+    name: ict3103-network
+    driver: bridge
