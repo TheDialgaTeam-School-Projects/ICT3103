@@ -15,8 +15,10 @@ RUN mv "${PHP_INI_DIR}/php.ini-${BUILD_ENVIRONMENT}" "${PHP_INI_DIR}/php.ini" &&
     install-php-extensions mysqli && \
     a2enmod rewrite && \
     a2dissite 000-default && \
-    if [ "${BUILD_ENVIRONMENT}" = "development" ] ; then a2ensite apache-site ; else a2ensite apache-site-ssl ; fi
+    if [ "${BUILD_ENVIRONMENT}" = "development" ] ; then a2ensite apache-site ; else a2ensite apache-site-ssl && mkdir /etc/letsencrypt ; fi
 
 WORKDIR /var/www/html
+
+CMD composer install && composer dump-autoload -o && apache2-foreground
 
 EXPOSE 80 443
