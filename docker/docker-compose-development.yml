@@ -5,9 +5,9 @@ services:
     container_name: ict3103-database
     command: --default-authentication-plugin=mysql_native_password
     ports:
-    - 3306:3306
+      - 3306:3306
     volumes:
-    - ict3103-volume:/var/lib/mysql
+      - ict3103-volume:/var/lib/mysql
     networks:
       - ict3103-network
     environment:
@@ -25,8 +25,8 @@ services:
     image: ict3103/php:7.4-apache-${BUILD_ENVIRONMENT}
     container_name: ict3103-website
     ports:
-    - 80:80
-    - 443:443
+      - 80:80
+      - 443:443
     volumes:
       - ./../php:/var/www/html
     networks:
@@ -41,12 +41,54 @@ services:
       - database
     restart: unless-stopped
 
+  jenkins-docker:
+    image: docker:dind
+    container_name: jenkins-docker
+    ports:
+      - 2376:2376
+    volumes:
+      - jenkins-docker-certs:/certs/client
+      - jenkins-data:/var/jenkins_home
+    networks:
+      jenkins-network:
+        aliases:
+          - docker
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: /certs
+    restart: unless-stopped
+
+  jenkins:
+    image: jenkinsci/blueocean
+    container_name: jenkins
+    ports:
+      - 8080:8080
+      - 50000:50000
+    volumes:
+      - jenkins-docker-certs:/certs/client:ro
+      - jenkins-data:/var/jenkins_home
+    networks:
+      - jenkins-network
+    environment:
+      DOCKER_HOST: tcp://docker:2376
+      DOCKER_CERT_PATH: /certs/client
+      DOCKER_TLS_VERIFY: 1
+    depends_on:
+      - jenkins-docker
+    restart: unless-stopped
 
 volumes:
   ict3103-volume:
     name: ict3103-volume
+  jenkins-data:
+    name: jenkins-data
+  jenkins-docker-certs:
+    name: jenkins-docker-certs
 
 networks:
   ict3103-network:
     name: ict3103-network
+    driver: bridge
+  jenkins-network:
+    name: jenkins-network
     driver: bridge
