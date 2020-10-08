@@ -63,7 +63,7 @@ services:
     image: jenkinsci/blueocean
     container_name: jenkins
     ports:
-      - 8080:443
+      - 8080:8080
       - 50000:50000
     volumes:
       - jenkins-docker-certs:/certs/client:ro
