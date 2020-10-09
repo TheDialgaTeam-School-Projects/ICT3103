@@ -75,7 +75,7 @@ services:
       DOCKER_HOST: tcp://docker:2376
       DOCKER_CERT_PATH: /certs/client
       DOCKER_TLS_VERIFY: 1
-    command: --httpPort=-1 --httpsPort=8080 --httpsCertificate=/etc/letsencrypt/live/${APACHE_SERVER_NAME}/fullchain.pem --httpsPrivateKey=/etc/letsencrypt/live/${APACHE_SERVER_NAME}/privkey.pem
+    command: --httpPort=-1 --httpsPort=8080 --httpsKeyStore=/etc/letsencrypt/live/${APACHE_SERVER_NAME}/jenkins.jks --httpsKeyStorePassword=${SSL_CERT_PASSWORD}
     depends_on:
       - jenkins-docker
     restart: unless-stopped
