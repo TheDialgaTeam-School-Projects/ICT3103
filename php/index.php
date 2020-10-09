@@ -9,5 +9,4 @@ try {
     $app->start(realpath(__DIR__ . '/src/config.php'));
 } catch (Exception $e) {
     echo '<p>' . $e->getMessage() . '</p>';
-    echo '<p>' . $e->getTraceAsString() . '</p>';
 }
