@@ -1,19 +1,13 @@
 <?php
 
-namespace teamwork\core;
+namespace teamwork\core\router;
 
-use Exception;
 use InvalidArgumentException;
-use ReflectionClass;
-use ReflectionException;
 
 class Route
 {
     /** @var string Route name. */
     private string $name;
-
-    /** @var string Route uri path. */
-    private string $uriPath;
 
     /** @var array Route uri parts. */
     private array $uriParts = [];
@@ -30,11 +24,11 @@ class Route
      * @param string $uriPath Route uri path.
      * @param string $targetController Target controller.
      * @param string $targetAction Target action.
+     * @throws InvalidArgumentException uriPath contains invalid characters.
      */
     public function __construct(string $name, string $uriPath, string $targetController, string $targetAction)
     {
         $this->name = $name;
-        $this->uriPath = $uriPath;
         $this->targetController = $targetController;
         $this->targetAction = $targetAction;
 
@@ -86,7 +80,7 @@ class Route
     /**
      * Get the route uri with parameters.
      * @param mixed ...$parameters Route uri parameters.
-     * @return string Route uri.
+     * @return string route uri.
      */
     public function getRouteUri(...$parameters): string
     {
@@ -107,57 +101,8 @@ class Route
     }
 
     /**
-     * Execute selected route.
-     * @param App $app Application.
-     * @throws ReflectionException if the class does not exist.
-     * @throws Exception response error.
-     */
-    public function executeRoute(App $app): void
-    {
-        $controllerName = 'teamwork\\controller\\' . $this->targetController;
-        $controllerObject = new $controllerName($app);
-        $reflector = new ReflectionClass($controllerObject);
-        $controllerAction = $reflector->getMethod($app->getConfig()['Default']['ActionPrefix'] . $this->targetAction);
-        $requiredParametersCount = $controllerAction->getNumberOfRequiredParameters();
-
-        /** @var Response $response */
-        $response = null;
-
-        $response = $controllerObject->beforeDispatch();
-
-        if ($response instanceof Response) {
-            $response->execute();
-            return;
-        }
-
-        if ($requiredParametersCount === 0) {
-            // No parameter accepted for this action.
-            $response = $controllerAction->invoke($controllerObject);
-        } else if ($requiredParametersCount === 1) {
-            $parameters = [];
-            $uriParts = explode('/', $app->getRequest()->getUri());
-            $uriPartsCount = count($uriParts);
-
-            for ($i = 0; $i < $uriPartsCount; $i++) {
-                if (!$this->uriParts[$i]['isNamedParameter']) continue;
-                $parameters[$this->uriParts[$i]['value']] = $uriParts[$i];
-            }
-
-            $response = $controllerAction->invokeArgs($controllerObject, [$parameters]);
-        } else {
-            throw new InvalidArgumentException('Too many parameters in the ' . $app->getConfig()['Default']['ActionPrefix'] . $this->targetAction . ' function in ' . $this->targetController . '.');
-        }
-
-        if ($response instanceof Response) {
-            $response->execute();
-        }
-
-        $controllerObject->afterDispatch();
-    }
-
-    /**
      * Get the route name.
-     * @return string The route name.
+     * @return string route name.
      */
     public function getName(): string
     {
@@ -165,8 +110,17 @@ class Route
     }
 
     /**
+     * Get the route uri parts.
+     * @return array route uri parts.
+     */
+    public function getUriParts(): array
+    {
+        return $this->uriParts;
+    }
+
+    /**
      * Get the target controller for this route.
-     * @return string The target controller for this route.
+     * @return string target controller for this route.
      */
     public function getTargetController(): string
     {
@@ -175,7 +129,7 @@ class Route
 
     /**
      * Get the target action for this route.
-     * @return string The target action for this route.
+     * @return string target action for this route.
      */
     public function getTargetAction(): string
     {

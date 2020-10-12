@@ -6,8 +6,21 @@ use Exception;
 
 class CsrfTokenService
 {
+    /** @var string Csrf token key for the session. */
+    private const CSRF_TOKEN_KEY = 'CSRF_TOKENS';
+
     /** @var string[] Csrf token */
     private array $csrfToken;
+
+    public function __construct()
+    {
+        if (!isset($_SESSION[self::CSRF_TOKEN_KEY])) {
+            $_SESSION[self::CSRF_TOKEN_KEY] = [];
+            $this->csrfToken = [];
+        } else {
+            $this->csrfToken = $_SESSION[self::CSRF_TOKEN_KEY];
+        }
+    }
 
     /**
      * Get csrf token.
@@ -15,7 +28,7 @@ class CsrfTokenService
      * @param bool $regenerate Whether to regenerate the csrf token.
      * @return string Csrf token.
      */
-    public function getCsrfToken(string $sessionKey, bool $regenerate = false): string
+    public function getCsrfToken(string $sessionKey, bool $regenerate = true): string
     {
         if ($regenerate || empty($this->csrfToken[$sessionKey])) {
             $this->generateCsrfToken($sessionKey);
@@ -28,15 +41,16 @@ class CsrfTokenService
      * Generate a new csrf token.
      * @param string $sessionKey Session key used to store csrf token.
      */
-    public function generateCsrfToken(string $sessionKey): void
+    private function generateCsrfToken(string $sessionKey): void
     {
         try {
-            $this->csrfToken[$sessionKey] = bin2hex(random_bytes(32));
+            $value = bin2hex(random_bytes(32));
         } catch (Exception $e) {
-            $this->csrfToken[$sessionKey] = bin2hex(md5(time()));
+            $value = bin2hex(md5(time()));
         }
 
-        $_SESSION[$sessionKey] = $this->csrfToken[$sessionKey];
+        $this->csrfToken[$sessionKey] = $value;
+        $_SESSION[self::CSRF_TOKEN_KEY][$sessionKey] = $value;
     }
 
     /**
@@ -45,8 +59,8 @@ class CsrfTokenService
      * @param string $csrfToken Csrf token to verify.
      * @return bool true if the csrf token match, else false.
      */
-    public function validateCsrfToken(string $sessionKey, string $csrfToken): bool
+    public function isCsrfTokenValid(string $sessionKey, string $csrfToken): bool
     {
-        return hash_equals($_SESSION[$sessionKey], $csrfToken);
+        return hash_equals($this->csrfToken[$sessionKey], $csrfToken);
     }
 }

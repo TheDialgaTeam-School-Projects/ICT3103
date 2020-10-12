@@ -2,18 +2,21 @@
 
 namespace teamwork\service;
 
-use teamwork\core\MySql;
+use teamwork\model\UserAccountModel;
 
 class AuthenticationService
 {
-    /** @var MySql Database object. */
-    private MySql $db;
+    /** @var string Session token key. */
+    private const SESSION_TOKEN_KEY = 'SESSION_USER';
+
+    /** @var MySqlService Database object. */
+    private MySqlService $db;
 
     /**
      * AuthenticationService constructor.
-     * @param MySql $db Database object.
+     * @param MySqlService $db Database object.
      */
-    public function __construct(MySql $db)
+    public function __construct(MySqlService $db)
     {
         $this->db = $db;
     }
@@ -32,18 +35,15 @@ class AuthenticationService
         $query = $this->db->query('select password from user_account where username = ?', $username);
         if (!$query) return false;
 
-        $result = $query->fetch_array();
+        /** @var UserAccountModel|null $result */
+        $result = $query->fetch_object(UserAccountModel::class);
         $query->close();
 
-        if (!$result) return false;
-
-        $passwordHash = $result[0];
-
-        if (!password_verify($password, $passwordHash)) return false;
+        if (!$result || !password_verify($password, $result->getPassword())) return false;
 
         $this->db->query('insert into logger(username, logged_datetime) VALUE (?, ?)', $username, date('Y-m-d H:i:s'));
 
-        $_SESSION['username'] = $username;
+        $_SESSION[self::SESSION_TOKEN_KEY] = $username;
 
         return true;
     }
@@ -153,7 +153,7 @@ class AuthenticationService
         }
 
         try {
-            if ($query->num_rows > 0) {
+            if ($query->fetch_array(MYSQLI_NUM)[0] > 0) {
                 $error = 'Username has already been used.';
                 return false;
             }
@@ -164,7 +164,7 @@ class AuthenticationService
         // Commit new account!
         $passwordHash = password_hash($password, PASSWORD_BCRYPT);
 
-        if ($passwordHash === null || $passwordHash === false) {
+        if (!$passwordHash) {
             $error = 'Expected error had occurred.';
             return false;
         }
@@ -180,6 +180,6 @@ class AuthenticationService
      */
     public function isLoggedIn(): bool
     {
-        return isset($_SESSION['username']);
+        return isset($_SESSION[self::SESSION_TOKEN_KEY]);
     }
 }

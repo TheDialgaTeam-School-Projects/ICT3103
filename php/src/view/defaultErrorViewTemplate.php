@@ -4,7 +4,10 @@
         <p><?= $this->errorMessage ?></p>
         <?php if (!empty($this->errorStackTrace)): ?>
             <hr/>
-            <p><?= $this->errorStackTrace ?></p>
+            <?php array_map(function ($value) {
+                echo "<p>$value</p>";
+            }, preg_split('/\n/', $this->errorStackTrace))
+            ?>
         <?php endif; ?>
     </div>
 </div>

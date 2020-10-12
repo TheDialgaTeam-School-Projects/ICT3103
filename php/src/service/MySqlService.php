@@ -1,28 +1,23 @@
 <?php
 
-namespace teamwork\core;
+namespace teamwork\service;
 
 use mysqli;
 use mysqli_result;
 
-class MySql
+class MySqlService
 {
     /** @var mysqli Mysqli object. */
     private mysqli $connection;
 
     /**
-     * MySql constructor.
+     * MySqlService constructor.
      * @param array $dbConfig Database configuration.
      */
     public function __construct(array $dbConfig)
     {
         $this->connection = new mysqli($dbConfig['Host'], $dbConfig['Username'], $dbConfig['Password'], $dbConfig['Schema'], $dbConfig['Port']);
         $this->initCheck($dbConfig);
-    }
-
-    public function __destruct()
-    {
-        $this->connection->close();
     }
 
     /**
@@ -101,5 +96,10 @@ class MySql
 
             return $result;
         }
+    }
+
+    public function __destruct()
+    {
+        $this->connection->close();
     }
 }

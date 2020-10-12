@@ -41,10 +41,10 @@
                     and one special characters.
                 </small>
             </div>
-            <a class="btn btn-primary" href="<?= $this->getRouteUri('Index') ?>" role="button"><i
+            <a class="btn btn-primary" href="<?= $this->getRouteUri('Login') ?>" role="button"><i
                         class="fas fa-arrow-left"></i> Back</a>
             <button type="submit" class="btn btn-primary">Register</button>
-            <input type="hidden" id="csrfToken" name="csrfToken" value="<?= $this->getCsrfToken() ?>"/>
+            <input type="hidden" id="csrfToken" name="csrfToken" value="<?= $this->csrfToken ?>"/>
         </form>
     </div>
 </div>

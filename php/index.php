@@ -1,12 +1,8 @@
 <?php
 
-use teamwork\core\App;
+use teamwork\core\application\Application;
 
 require __DIR__ . '/vendor/autoload.php';
 
-try {
-    $app = new App();
-    $app->start(realpath(__DIR__ . '/src/config.php'));
-} catch (Exception $e) {
-    echo '<p>' . $e->getMessage() . '</p>';
-}
+$app = new Application();
+$app->start(realpath(__DIR__ . '/src/config.php'));
