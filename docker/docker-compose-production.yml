@@ -1,0 +1,102 @@
+version: "3.8"
+services:
+  database:
+    image: mysql:latest
+    container_name: ict3103-database
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - 3306:3306
+    volumes:
+      - ict3103-volume:/var/lib/mysql
+    networks:
+      - ict3103-network
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    restart: unless-stopped
+
+  website:
+    build:
+      args:
+        BUILD_ENVIRONMENT: production
+      context: ./website
+    image: ict3103/php:7.4-apache-development
+    container_name: ict3103-website
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./../project:/var/www/html
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    networks:
+      - ict3103-network
+    environment:
+      BUILD_ENVIRONMENT: "production"
+      APACHE_SERVER_ADMIN: ${APACHE_SERVER_ADMIN}
+      APACHE_SERVER_NAME: ${APACHE_SERVER_NAME}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USERNAME: ${MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      APP_NAME: ${APP_NAME}
+      APP_ENV: "production"
+      APP_DEBUG: "false"
+      AUTHY_API_KEY: ${AUTHY_API_KEY}
+    depends_on:
+      - database
+    restart: unless-stopped
+
+  jenkins-docker:
+    image: docker:dind
+    container_name: jenkins-docker
+    ports:
+      - 2376:2376
+    volumes:
+      - jenkins-docker-certs:/certs/client
+      - jenkins-data:/var/jenkins_home
+    networks:
+      jenkins-network:
+        aliases:
+          - docker
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: /certs
+    restart: unless-stopped
+
+  jenkins:
+    image: jenkinsci/blueocean
+    container_name: jenkins
+    ports:
+      - 8080:8080
+      - 50000:50000
+    volumes:
+      - jenkins-docker-certs:/certs/client:ro
+      - jenkins-data:/var/jenkins_home
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    networks:
+      - jenkins-network
+    environment:
+      DOCKER_HOST: tcp://docker:2376
+      DOCKER_CERT_PATH: /certs/client
+      DOCKER_TLS_VERIFY: 1
+    command: --httpPort=-1 --httpsPort=8080 --httpsKeyStore=/etc/letsencrypt/live/${APACHE_SERVER_NAME}/jenkins.jks --httpsKeyStorePassword=${SSL_CERT_PASSWORD}
+    depends_on:
+      - jenkins-docker
+    restart: unless-stopped
+
+volumes:
+  ict3103-volume:
+    name: ict3103-volume
+  jenkins-data:
+    name: jenkins-data
+  jenkins-docker-certs:
+    name: jenkins-docker-certs
+
+networks:
+  ict3103-network:
+    name: ict3103-network
+    driver: bridge
+  jenkins-network:
+    name: jenkins-network
+    driver: bridge

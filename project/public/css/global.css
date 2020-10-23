@@ -1,0 +1,32 @@
+html,
+body {
+  height: 100%;
+}
+.background {
+  background-image: url("/images/background.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position-x: center;
+  background-attachment: fixed;
+}
+.login-container {
+  display: flex;
+  height: 100%;
+  text-align: center;
+}
+.login-form {
+  width: 100%;
+  max-width: 330px;
+  margin: auto;
+  background-color: white;
+  border: 1px black solid;
+}
+.register-container {
+  display: flex;
+  height: 100%;
+}
+.register-form {
+  margin: auto;
+  background-color: white;
+  border: 1px black solid;
+}
