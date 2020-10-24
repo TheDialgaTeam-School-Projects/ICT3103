@@ -100,4 +100,8 @@ After cloning this repository, you should create a `.env` environment file in `d
 * APACHE_SERVER_NAME=
 * AUTHY_API_KEY=
 
+Production variables:
+
+* SSL_CERT_PASSWORD=
+
 Value that is blank or enclosed with < > should be edited to your desired configuration.

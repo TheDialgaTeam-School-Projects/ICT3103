@@ -30,7 +30,7 @@ if [ ! -f "/var/www/html/.dockerinstaller" ]; then
   fi
 
   php artisan key:generate
-  php artisan migrate:fresh --seed
+  php artisan migrate:fresh --seed --force
 
   touch .dockerinstaller
 fi
