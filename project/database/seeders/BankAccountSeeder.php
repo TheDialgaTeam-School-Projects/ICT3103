@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Repository\BulkCreatorRepositoryInterface;
 use App\Repository\UserRepositoryInterface;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
