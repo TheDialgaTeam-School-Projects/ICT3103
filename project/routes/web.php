@@ -18,11 +18,14 @@ use Illuminate\Support\Facades\Route;
 
 // Route that can be accessed by guest and redirects to dashboard if logged in.
 Route::middleware('guest')->group(function () {
-    Route::get('/', [UserAuthenticationController::class, 'index'])->name('user_authentication.index');
+    Route::get('/', [UserAuthenticationController::class, 'login_index'])->name('user_authentication.login_index');
     Route::post('/', [UserAuthenticationController::class, 'login'])->name('user_authentication.login');
 
-    Route::get('/register', [UserRegistrationController::class, 'index'])->name('user_registration.index');
-    Route::post('/register', [UserRegistrationController::class, 'register'])->name('user_registration.register');
+    Route::get('/register/verify', [UserRegistrationController::class, 'verify_index'])->name('user_registration.verify_index');
+    Route::post('/register/verify', [UserRegistrationController::class, 'verify'])->name('user_registration.verify');
+
+    Route::get('/register/create', [UserRegistrationController::class, 'register_index'])->name('user_registration.register_index');
+    Route::post('/register/create', [UserRegistrationController::class, 'register'])->name('user_registration.register');
 });
 
 Route::get('/login/check', [UserAuthenticationController::class, 'login_check'])->name('user_authentication.login_check');

@@ -8,16 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Model for user session table.
+ * Model for bank transaction table.
  *
  * @package App\Models
  * @property int id
- * @property string username
- * @property string ip_address
- * @property CarbonInterface last_logged_in
- * @property UserAccount userAccount
+ * @property string transaction_type
+ * @property string amount
+ * @property CarbonInterface transaction_timestamp
+ * @property string bank_account_id
+ * @property BankAccount bankAccount
  */
-class UserSession extends Model
+class BankTransaction extends Model
 {
     use HasFactory;
 
@@ -26,7 +27,7 @@ class UserSession extends Model
      *
      * @var string
      */
-    protected $table = "user_last_session";
+    protected $table = "bank_transaction";
 
     /**
      * Indicates if the model should be timestamped.
@@ -41,18 +42,10 @@ class UserSession extends Model
      * @var string[]
      */
     protected $fillable = [
-        'username',
-        'ip_address',
-        'last_logged_in',
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'ip_address',
+        'transaction_type',
+        'amount',
+        'transaction_timestamp',
+        'bank_account_id',
     ];
 
     /**
@@ -61,17 +54,16 @@ class UserSession extends Model
      * @var array
      */
     protected $casts = [
-        'ip_address' => 'string',
-        'last_logged_in' => 'datetime',
+        'transaction_timestamp' => 'datetime',
     ];
 
     /**
-     * Get the user account record associated with the user session.
+     * Get the bank account record associated with the bank transaction.
      *
      * @return BelongsTo
      */
-    public function userAccount()
+    public function bankAccount()
     {
-        return $this->belongsTo(UserAccount::class, 'username', 'username');
+        return $this->belongsTo(BankAccount::class, 'bank_account_id');
     }
 }

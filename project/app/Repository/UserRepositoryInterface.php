@@ -2,9 +2,17 @@
 
 namespace App\Repository;
 
-use App\Models\User;
+use App\Repository\Eloquent\BankAccountRepositoryInterface;
+use App\Repository\Eloquent\BankProfileOtpRepositoryInterface;
+use App\Repository\Eloquent\BankProfileRepositoryInterface;
+use App\Repository\Eloquent\UserAccountRepositoryInterface;
+use App\Repository\Eloquent\UserSessionRepositoryInterface;
 
-interface UserRepositoryInterface extends UserCrudRepositoryInterface, UserOtpCrudRepositoryInterface
+interface UserRepositoryInterface extends
+    BankProfileRepositoryInterface,
+    BankProfileOtpRepositoryInterface,
+    BankAccountRepositoryInterface,
+    UserAccountRepositoryInterface,
+    UserSessionRepositoryInterface
 {
-    public function logUserSession(string $ipAddress, User $user = null): bool;
 }

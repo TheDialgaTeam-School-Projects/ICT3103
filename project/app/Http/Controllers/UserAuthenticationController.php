@@ -11,112 +11,91 @@ use Illuminate\Support\Facades\Auth;
 
 class UserAuthenticationController extends Controller
 {
-    /**
-     * @var UserRepositoryInterface
-     */
-    private $userRepository;
-
-    /**
-     * @var AuthyApi
-     */
-    private $authyApi;
-
-    public function __construct(UserRepositoryInterface $userRepository, AuthyApi $authyApi)
+    public function login_index(Request $request)
     {
-        $this->userRepository = $userRepository;
-        $this->authyApi = $authyApi;
-    }
-
-    public function index(Request $request)
-    {
-        $session = $request->session();
         $data = [];
-
-        if ($session->exists('alertType')) {
-            $data['alertType'] = $session->get('alertType');
-        }
-
-        if ($session->exists('alertMessage')) {
-            $data['alertMessage'] = $session->get('alertMessage');
-        }
-
+        $this->includeAlertMessage($request, $data);
         return view('user_login', $data);
     }
 
-    public function login(UserLoginFormRequest $request)
+    public function login(UserLoginFormRequest $request, UserRepositoryInterface $userRepository)
     {
-        $user = $this->userRepository->findUserByUsername($request->get('username'));
+        if ($this->isServingGlobalTimeout($request, 'user_login')) {
+            // User is currently serving a global timeout for brute forcing.
+            return view('user_login', [
+                'alertType' => 'error',
+                'alertMessage' => 'Account authentication has been disabled due to mass failed attempt. Please try again later.',
+            ]);
+        }
 
-        if ($this->userRepository->isUserInTimeout($user)) {
+        $user = $userRepository->findUserAccount($request->get('username'));
+
+        if ($userRepository->isUserServingTimeout($user)) {
             // User is currently serving a timeout.
             return view('user_login', [
                 'alertType' => 'error',
-                'alertMessage' => 'Account has been locked due to mass attempt. Please try again later.',
+                'alertMessage' => 'Account has been locked due to mass failed attempt. Please try again later.',
             ]);
         }
 
         if (Auth::attempt($request->only('username', 'password'))) {
-            // Valid user
-            $this->userRepository->resetUserFailedCount($user);
-            $this->userRepository->logUserSession($request->ip(), $user);
+            // User has logged in.
+            $this->resetGlobalFailedCount($request, 'user_login');
+            $userRepository->resetUserFailedCount($user);
+            $userRepository->logUserSession($request->ip(), $user);
 
-            if ($this->userRepository->isOtpRegistered($user)) {
-                return redirect()->intended(route('user_authentication.login_2fa'));
-            } else {
-                $request->session()->flash('alertType', 'warning');
-                $request->session()->flash('alertMessage', 'You are required to setup Two-factor authentication before you are allowed access to your account.');
-
-                return redirect()->intended(route('user_registration.register_2fa'));
-            }
-        } else {
-            // Invalid user or password.
-            $this->userRepository->incrementUserFailedCount($user);
-
-            return view('user_login', [
-                'alertType' => 'error',
-                'alertMessage' => 'Either username or password is invalid.',
-            ]);
+            return $this->sendUserToLogin($request, $userRepository);
         }
+
+        // User failed to log in.
+        if ($user === null) {
+            $this->incrementGlobalFailedCount($request, 'user_login');
+        } else {
+            $userRepository->incrementUserFailedCount($user);
+        }
+
+        return view('user_login', [
+            'alertType' => 'error',
+            'alertMessage' => 'Either username or password is invalid.',
+        ]);
     }
 
-    public function login_2fa()
+    public function login_2fa(Request $request, UserRepositoryInterface $userRepository, AuthyApi $authyApi)
     {
         if (env('APP_ENV') !== 'local') {
             // For production, we need to send sms in order for user to authenticate.
-            $this->authyApi->requestSms($this->userRepository->getAuthyId());
+            $authyApi->requestSms($userRepository->getAuthyId());
+            return view('user_login_2fa', [
+                'isOtpVerified' => $userRepository->isOtpVerified(),
+            ]);
+        } else {
+            return $this->sendUserToDashboard($request);
         }
-
-        return view('user_login_2fa');
     }
 
-    public function login_2fa_verify(UserTwoFactorLoginFormRequest $request)
+    public function login_2fa_verify(UserTwoFactorLoginFormRequest $request, UserRepositoryInterface $userRepository, AuthyApi $authyApi)
     {
-        if ($this->userRepository->isOtpInTimeout()) {
+        if ($userRepository->isOtpServingTimeout()) {
             // User is currently serving a timeout.
             return view('user_login_2fa', [
                 'alertType' => 'error',
-                'alertMessage' => 'Two-factor authentication has been locked due to mass attempt. Please try again later.',
+                'alertMessage' => 'Two-factor authentication has been locked due to mass failed attempt. Please try again later.',
             ]);
         }
 
-        $session = $request->session();
-
-        if (env('APP_ENV') === 'local') {
-            // For local development, we disable 2fa so that we do not hit the free api call limit.
-            $this->userRepository->resetOtpFailedCount();
-            $session->put('LOGIN_VERIFIED', true);
-            return redirect()->route('dashboard.index');
-        }
-
         $validated = $request->validated();
-        $authyResponse = $this->authyApi->verifyToken($this->userRepository->getAuthyId(), $validated['2fa_token']);
+        $authyResponse = $authyApi->verifyToken($userRepository->getAuthyId(), $validated['2fa_token']);
 
         if ($authyResponse->ok()) {
-            $this->userRepository->resetOtpFailedCount();
-            $session->put('LOGIN_VERIFIED', true);
-            return redirect()->route('dashboard.index');
+            $userRepository->resetOtpFailedCount();
+
+            if (!$userRepository->isOtpVerified()) {
+                $userRepository->setOtpVerified();
+            }
+
+            return $this->sendUserToDashboard($request);
         } else {
-            $this->userRepository->incrementOtpFailedCount();
+            $userRepository->incrementOtpFailedCount();
 
             return view('user_login_2fa', [
                 'alertType' => 'error',
@@ -125,22 +104,16 @@ class UserAuthenticationController extends Controller
         }
     }
 
-    public function login_check(Request $request)
+    public function login_check(Request $request, UserRepositoryInterface $userRepository)
     {
         $session = $request->session();
         $isLoggedIn = $session->get('LOGIN_VERIFIED', false);
 
         if ($isLoggedIn) {
-            return redirect()->route('dashboard.index');
+            return $this->sendUserToDashboard($request, true);
         }
 
-        if ($this->userRepository->isOtpRegistered()) {
-            return redirect()->route('user_authentication.login_2fa');
-        } else {
-            $request->session()->flash('alertType', 'warning');
-            $request->session()->flash('alertMessage', 'You are required to setup Two-factor authentication before you are allowed access to your account.');
-            return redirect()->route('user_registration.register_2fa');
-        }
+        return $this->sendUserToLogin($request, $userRepository);
     }
 
     public function logout(Request $request)
@@ -150,6 +123,28 @@ class UserAuthenticationController extends Controller
         $request->session()->flash('alertType', 'success');
         $request->session()->flash('alertMessage', 'User has been successfully logged out!');
 
-        return redirect()->route('user_authentication.index');
+        return redirect()->route('user_authentication.login_index');
+    }
+
+    private function sendUserToLogin(Request $request, UserRepositoryInterface $userRepository)
+    {
+        if ($userRepository->isOtpRegistered()) {
+            // User has registered the OTP token, ask them to verify now.
+            return redirect()->route('user_authentication.login_2fa');
+        } else {
+            // User has not register the OTP token, ask them to register now.
+            $this->flashAlertMessage($request, 'warning', 'You are required to setup Two-factor authentication before you are allowed access to your account.');
+            return redirect()->route('user_registration.register_2fa');
+        }
+    }
+
+    private function sendUserToDashboard(Request $request, bool $skipSessionUpdate = false)
+    {
+        if (!$skipSessionUpdate) {
+            $session = $request->session();
+            $session->put('LOGIN_VERIFIED', true);
+        }
+
+        return redirect()->route('dashboard.index');
     }
 }

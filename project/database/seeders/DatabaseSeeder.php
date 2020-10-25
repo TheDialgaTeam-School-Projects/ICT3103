@@ -6,8 +6,11 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
+    /**
+     * Execute seeder.
+     */
     public function run()
     {
-        $this->call(UserSeeder::class);
+        $this->call(BankAccountSeeder::class);
     }
 }

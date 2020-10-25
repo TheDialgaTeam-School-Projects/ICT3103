@@ -3,82 +3,109 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRegisterFormRequest;
+use App\Http\Requests\UserRegisterVerifyFormRequest;
 use App\Http\Requests\UserTwoFactorRegisterFormRequest;
 use App\Repository\UserRepositoryInterface;
 use Authy\AuthyApi;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
 class UserRegistrationController extends Controller
 {
-    /**
-     * @var UserRepositoryInterface
-     */
-    private $userRepository;
-
-    /**
-     * @var AuthyApi
-     */
-    private $authyApi;
-
-    public function __construct(UserRepositoryInterface $userRepository, AuthyApi $authyApi)
+    public function verify_index(Request $request)
     {
-        $this->userRepository = $userRepository;
-        $this->authyApi = $authyApi;
+        $data = [];
+        $this->includeAlertMessage($request, $data);
+        return view('user_register_verify', $data);
     }
 
-    public function index()
+    public function verify(UserRegisterVerifyFormRequest $request, UserRepositoryInterface $userRepository)
+    {
+        if ($this->isServingGlobalTimeout($request, 'user_register_verify')) {
+            // User is serving a global timeout for trying to brute force the verification process.
+            return view('user_register_verify', [
+                'alertType' => 'error',
+                'alertMessage' => 'Account registration has been disabled due to mass failed attempt. Please try again later.',
+            ]);
+        }
+
+        $validated = $request->validated();
+
+        if ($userRepository->isUserAccountCreated($validated['bank_profile_id'])) {
+            // User has already created a bank profile with this bank profile id.
+            return view('user_register_verify', [
+                'alertType' => 'error',
+                'alertMessage' => 'User has already created an account with this bank profile.',
+            ]);
+        }
+
+        if (!$userRepository->isBankProfileValid($validated['bank_profile_id'], $validated['identification_id'], $validated['date_of_birth'])) {
+            // User seem to have failed the verification check on the bank profile, this is probably because of typo or trying to brute force their way through.
+            $this->incrementGlobalFailedCount($request, 'user_register_verify');
+
+            return view('user_register_verify', [
+                'alertType' => 'error',
+                'alertMessage' => 'Identification id and Date of Birth must match the registered Bank Profile Id.',
+            ]);
+        }
+
+        // User has successfully validated the bank profile and should now bring you to register page.
+        $this->resetGlobalFailedCount($request, 'user_register_verify');
+        $request->session()->put('bank_profile_id', $validated['bank_profile_id']);
+        return redirect()->route('user_registration.register_index');
+    }
+
+    public function register_index()
     {
         return view('user_register');
     }
 
-    public function register(UserRegisterFormRequest $request)
+    public function register(UserRegisterFormRequest $request, UserRepositoryInterface $userRepository)
     {
+        if (!$request->session()->has('bank_profile_id')) {
+            // Invalid session, maybe the user take too long to complete hence the session variable is gone.
+            $this->flashAlertMessage($request, 'error', 'Session has expired. Please try again.');
+            return redirect()->route('user_registration.verify_index');
+        }
+
         $validated = $request->validated();
-        $this->userRepository->createUser(
+
+        $userRepository->createUserAccount(
             $validated['username'],
-            Hash::make($validated['password']),
-            $validated['first_name'],
-            $validated['last_name'],
-            $validated['date_of_birth']
+            $validated['password'],
+            $request->session()->pull('bank_profile_id')
         );
 
-        $request->session()->flash('alertType', 'success');
-        $request->session()->flash('alertMessage', 'User has been successfully created!');
-
-        return redirect()->route('user_authentication.index');
+        $this->flashAlertMessage($request, 'success', 'User has been successfully created!');
+        return redirect()->route('user_authentication.login_index');
     }
 
     public function register_2fa(Request $request)
     {
-        $session = $request->session();
         $data = [];
-
-        if ($session->exists('alertType')) {
-            $data['alertType'] = $session->get('alertType');
-        }
-
-        if ($session->exists('alertMessage')) {
-            $data['alertMessage'] = $session->get('alertMessage');
-        }
-
+        $this->includeAlertMessage($request, $data);
         return view('user_register_2fa', $data);
     }
 
-    public function register_2fa_verify(UserTwoFactorRegisterFormRequest $request)
+    public function register_2fa_verify(UserTwoFactorRegisterFormRequest $request, UserRepositoryInterface $userRepository, AuthyApi $authyApi)
     {
         $validated = $request->validated();
-        $authyUser = $this->authyApi->registerUser($validated['email_address'], $validated['mobile_number'], 65);
+        $authyUser = $authyApi->registerUser($validated['email_address'], $validated['mobile_number'], 65);
 
         if (!$authyUser->ok()) {
+            // Invalid 2FA credentials used to register this account. Sorry :P
             return view('user_register_2fa', [
                 'alertType' => 'error',
                 'alertMessage' => 'Email or Mobile number is invalid.',
             ]);
-        } else {
-            $this->userRepository->registerOtpToUser($authyUser->id());
-            return redirect()->route('user_authentication.login_2fa');
         }
+
+        // Register the 2FA credentials and verify...?
+        if (!$userRepository->isOtpRegistered()) {
+            $userRepository->registerBankProfileOtp($authyUser->id());
+        } else {
+            $userRepository->updateBankProfileOtp($authyUser->id());
+        }
+
+        return redirect()->route('user_authentication.login_2fa');
     }
 }

@@ -25,9 +25,15 @@
                 @enderror
             </div>
             <button type="submit" class="btn btn-primary btn-block">Verify</button>
-            <a class="btn btn-primary btn-block" href="{{ route('user_authentication.logout') }}" role="button">
-                <i class="fas fa-arrow-left"></i> Back to Login
-            </a>
+            @if ($isOtpVerified)
+                <a class="btn btn-primary btn-block" href="{{ route('user_authentication.logout') }}" role="button">
+                    <i class="fas fa-arrow-left"></i> Back to Login
+                </a>
+            @else
+                <a class="btn btn-primary btn-block" href="{{ route('user_registration.register_2fa') }}" role="button">
+                    <i class="fas fa-arrow-left"></i> Back to 2FA Registration
+                </a>
+            @endif
             @csrf
         </form>
     </div>

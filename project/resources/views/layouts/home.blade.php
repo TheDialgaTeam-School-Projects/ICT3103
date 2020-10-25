@@ -18,7 +18,7 @@
 
     <script src="https://kit.fontawesome.com/e5e217aee3.js" crossorigin="anonymous"></script>
 
-    <title>ICT3103/3203 Project - @yield('title')</title>
+    <title>ICT3x03 Project - @yield('title')</title>
 </head>
 <body class="background">
 @yield('content')
