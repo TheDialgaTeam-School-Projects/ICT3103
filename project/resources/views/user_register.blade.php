@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="register-container">
-        <form class="register-form p-3 rounded" method="post" action="{{ route('user_registration.register') }}">
+        <form class="register-form p-3 rounded" method="post" action="{{ route('user_registration.register_create_post') }}">
             <p>Register for iBanking account:</p>
             <h4 class="text-center">Step 2: Registration</h4>
             @if (isset($alertType, $alertMessage))
@@ -45,7 +45,7 @@
                 <div id="password_confirm_feedback" class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
-            <a class="btn btn-primary" href="{{ route('user_authentication.login_index') }}" role="button">
+            <a class="btn btn-primary" href="{{ route('user_authentication.login_get') }}" role="button">
                 <i class="fas fa-arrow-left"></i> Back
             </a>
             <button type="submit" class="btn btn-primary">Register</button>

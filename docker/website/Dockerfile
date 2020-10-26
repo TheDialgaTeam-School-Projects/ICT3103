@@ -2,7 +2,6 @@ FROM php:7.4-apache
 
 ARG BUILD_ENVIRONMENT="development"
 
-ENV APACHE_SERVER_ADMIN=""
 ENV APACHE_SERVER_NAME="localhost"
 
 COPY *.sh /root/
@@ -11,10 +10,8 @@ COPY apache-*.conf /etc/apache2/sites-available/
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
-RUN chmod u+x /root/build_run.sh /root/cmd.sh && /root/build_run.sh && rm /root/build_run.sh
+RUN chmod u+x /root/build_run.sh && /root/build_run.sh && rm /root/build_run.sh
 
 WORKDIR /var/www/html
-
-CMD /root/cmd.sh
 
 EXPOSE 80 443

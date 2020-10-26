@@ -26,7 +26,7 @@
                 <div class="dropdown-menu dropdown-menu-right">
                     <a class="dropdown-item" href="#">My Profile</a>
                     <a class="dropdown-item" href="#">Change Password</a>
-                    <a class="dropdown-item" href="{{ route('user_registration.register_2fa') }}">Update 2FA Token</a>
+                    <a class="dropdown-item" href="{{ route('user_registration.register_2fa_get') }}">Update 2FA Token</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="{{ route('user_authentication.logout') }}">Logout</a>
                 </div>

@@ -13,6 +13,9 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
+    private const GLOBAL_TIMEOUT_TRIES = 3;
+    private const GLOBAL_TIMEOUT_DURATION = 5;
+
     /**
      * Flash alert message into the next request.
      *
@@ -37,11 +40,8 @@ class Controller extends BaseController
     {
         $session = $request->session();
 
-        if ($session->exists('alertType')) {
+        if ($session->exists('alertType') && $session->exists('alertMessage')) {
             $data['alertType'] = $session->get('alertType');
-        }
-
-        if ($session->exists('alertMessage')) {
             $data['alertMessage'] = $session->get('alertMessage');
         }
     }
@@ -58,9 +58,9 @@ class Controller extends BaseController
         $failedCount = $session->get($type . '_failed_count', 0);
         $failedCount++;
 
-        if ($failedCount >= 3) {
+        if ($failedCount >= self::GLOBAL_TIMEOUT_TRIES) {
             $failedCount = 0;
-            $session->put($type . '_reset_datetime', Carbon::now()->addMinutes(5)->getTimestamp());
+            $session->put($type . '_reset_datetime', Carbon::now()->addMinutes(self::GLOBAL_TIMEOUT_DURATION)->getTimestamp());
         }
 
         $session->put($type . '_failed_count', $failedCount);
@@ -74,8 +74,7 @@ class Controller extends BaseController
      */
     protected function resetGlobalFailedCount(Request $request, string $type)
     {
-        $session = $request->session();
-        $session->put($type . '_failed_count', 0);
+        $request->session()->put($type . '_failed_count', 0);
     }
 
     /**

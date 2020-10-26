@@ -18,25 +18,25 @@ use Illuminate\Support\Facades\Route;
 
 // Route that can be accessed by guest and redirects to dashboard if logged in.
 Route::middleware('guest')->group(function () {
-    Route::get('/', [UserAuthenticationController::class, 'login_index'])->name('user_authentication.login_index');
-    Route::post('/', [UserAuthenticationController::class, 'login'])->name('user_authentication.login');
+    Route::get('/', [UserAuthenticationController::class, 'login_get'])->name('user_authentication.login_get');
+    Route::post('/', [UserAuthenticationController::class, 'login_post'])->name('user_authentication.login_post');
 
-    Route::get('/register/verify', [UserRegistrationController::class, 'verify_index'])->name('user_registration.verify_index');
-    Route::post('/register/verify', [UserRegistrationController::class, 'verify'])->name('user_registration.verify');
+    Route::get('/register/verify', [UserRegistrationController::class, 'register_verify_get'])->name('user_registration.register_verify_get');
+    Route::post('/register/verify', [UserRegistrationController::class, 'register_verify_post'])->name('user_registration.register_verify_post');
 
-    Route::get('/register/create', [UserRegistrationController::class, 'register_index'])->name('user_registration.register_index');
-    Route::post('/register/create', [UserRegistrationController::class, 'register'])->name('user_registration.register');
+    Route::get('/register/create', [UserRegistrationController::class, 'register_create_get'])->name('user_registration.register_create_get');
+    Route::post('/register/create', [UserRegistrationController::class, 'register_create_post'])->name('user_registration.register_create_post');
 });
 
 Route::get('/login/check', [UserAuthenticationController::class, 'login_check'])->name('user_authentication.login_check');
 
 // Route that requires user to be logged in or it redirect back to index.
 Route::middleware('auth')->group(function () {
-    Route::get('/login/2fa', [UserAuthenticationController::class, 'login_2fa'])->name('user_authentication.login_2fa');
-    Route::post('/login/2fa', [UserAuthenticationController::class, 'login_2fa_verify'])->name('user_authentication.login_2fa_verify');
+    Route::get('/login/2fa', [UserAuthenticationController::class, 'login_2fa_get'])->name('user_authentication.login_2fa_get');
+    Route::post('/login/2fa', [UserAuthenticationController::class, 'login_2fa_post'])->name('user_authentication.login_2fa_post');
 
-    Route::get('/register/2fa', [UserRegistrationController::class, 'register_2fa'])->name('user_registration.register_2fa');
-    Route::post('/register/2fa', [UserRegistrationController::class, 'register_2fa_verify'])->name('user_registration.register_2fa_verify');
+    Route::get('/register/2fa', [UserRegistrationController::class, 'register_2fa_get'])->name('user_registration.register_2fa_get');
+    Route::post('/register/2fa', [UserRegistrationController::class, 'register_2fa_post'])->name('user_registration.register_2fa_post');
 
     Route::get('/logout', [UserAuthenticationController::class, 'logout'])->name('user_authentication.logout');
 

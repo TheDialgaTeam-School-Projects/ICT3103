@@ -11,14 +11,14 @@ use Illuminate\Http\Request;
 
 class UserRegistrationController extends Controller
 {
-    public function verify_index(Request $request)
+    public function register_verify_get(Request $request)
     {
         $data = [];
         $this->includeAlertMessage($request, $data);
         return view('user_register_verify', $data);
     }
 
-    public function verify(UserRegisterVerifyFormRequest $request, UserRepositoryInterface $userRepository)
+    public function register_verify_post(UserRegisterVerifyFormRequest $request, UserRepositoryInterface $userRepository)
     {
         if ($this->isServingGlobalTimeout($request, 'user_register_verify')) {
             // User is serving a global timeout for trying to brute force the verification process.
@@ -51,20 +51,20 @@ class UserRegistrationController extends Controller
         // User has successfully validated the bank profile and should now bring you to register page.
         $this->resetGlobalFailedCount($request, 'user_register_verify');
         $request->session()->put('bank_profile_id', $validated['bank_profile_id']);
-        return redirect()->route('user_registration.register_index');
+        return redirect()->route('user_registration.register_create_get');
     }
 
-    public function register_index()
+    public function register_create_get()
     {
         return view('user_register');
     }
 
-    public function register(UserRegisterFormRequest $request, UserRepositoryInterface $userRepository)
+    public function register_create_post(UserRegisterFormRequest $request, UserRepositoryInterface $userRepository)
     {
         if (!$request->session()->has('bank_profile_id')) {
             // Invalid session, maybe the user take too long to complete hence the session variable is gone.
             $this->flashAlertMessage($request, 'error', 'Session has expired. Please try again.');
-            return redirect()->route('user_registration.verify_index');
+            return redirect()->route('user_registration.register_verify_get');
         }
 
         $validated = $request->validated();
@@ -76,17 +76,17 @@ class UserRegistrationController extends Controller
         );
 
         $this->flashAlertMessage($request, 'success', 'User has been successfully created!');
-        return redirect()->route('user_authentication.login_index');
+        return redirect()->route('user_authentication.login_get');
     }
 
-    public function register_2fa(Request $request)
+    public function register_2fa_get(Request $request)
     {
         $data = [];
         $this->includeAlertMessage($request, $data);
         return view('user_register_2fa', $data);
     }
 
-    public function register_2fa_verify(UserTwoFactorRegisterFormRequest $request, UserRepositoryInterface $userRepository, AuthyApi $authyApi)
+    public function register_2fa_post(UserTwoFactorRegisterFormRequest $request, UserRepositoryInterface $userRepository, AuthyApi $authyApi)
     {
         $validated = $request->validated();
         $authyUser = $authyApi->registerUser($validated['email_address'], $validated['mobile_number'], 65);
@@ -106,6 +106,6 @@ class UserRegistrationController extends Controller
             $userRepository->updateBankProfileOtp($authyUser->id());
         }
 
-        return redirect()->route('user_authentication.login_2fa');
+        return redirect()->route('user_authentication.login_2fa_get');
     }
 }

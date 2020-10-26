@@ -39,6 +39,6 @@ Homestead.json
 _ide_*
 
 # Docker Installer helper
-.dockerinstaller
+.dockerinstalled
 
 # End of https://www.toptal.com/developers/gitignore/api/composer,laravel

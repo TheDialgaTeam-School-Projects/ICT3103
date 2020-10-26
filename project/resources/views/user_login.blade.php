@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="login-container">
-        <form class="login-form p-3 rounded" method="post" action="{{ route('user_authentication.login') }}">
+        <form class="login-form p-3 rounded" method="post" action="{{ route('user_authentication.login_post') }}">
             <i class="fas fa-piggy-bank mb-2" style="width: 72px; height: 72px; color: red"></i>
             <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
             @if (isset($alertType, $alertMessage))
@@ -31,7 +31,7 @@
                 @enderror
             </div>
             <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-            <a class="btn btn-lg btn-primary btn-block" href="{{ route('user_registration.verify_index') }}"
+            <a class="btn btn-lg btn-primary btn-block" href="{{ route('user_registration.register_verify_get') }}"
                role="button">Register</a>
             @csrf
         </form>

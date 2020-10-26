@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
 curl -sL https://deb.nodesource.com/setup_lts.x | bash -
-apt-get update
-apt-get install git zip unzip nodejs -y
+apt-get install nodejs zip unzip -y
 apt-get autoremove -y
 
 mv "${PHP_INI_DIR}/php.ini-${BUILD_ENVIRONMENT}" "${PHP_INI_DIR}/php.ini"

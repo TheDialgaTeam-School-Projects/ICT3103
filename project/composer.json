@@ -14,7 +14,8 @@
         "laravel/framework": "^8.0",
         "laravel/tinker": "^2.0",
         "authy/php": "^4.0.0-rc1",
-        "godruoyi/php-snowflake": "^1.0.11"
+        "godruoyi/php-snowflake": "^1.0.11",
+        "ext-pdo": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.8",

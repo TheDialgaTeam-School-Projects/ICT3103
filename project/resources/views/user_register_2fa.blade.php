@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="register-container">
-        <form class="register-form p-3 rounded" method="post" action="{{ route('user_registration.register_2fa_verify') }}">
+        <form class="register-form p-3 rounded" method="post" action="{{ route('user_registration.register_2fa_post') }}">
             @if (isset($alertType, $alertMessage))
                 @if ($alertType === 'error')
                     <div class="alert alert-danger" role="alert">{{ $alertMessage }}</div>

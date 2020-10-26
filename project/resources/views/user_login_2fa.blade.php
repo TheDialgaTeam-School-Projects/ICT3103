@@ -5,7 +5,7 @@
 @section('content')
     <div class="register-container">
         <form class="register-form p-3 rounded" method="post"
-              action="{{ route('user_authentication.login_2fa_verify') }}">
+              action="{{ route('user_authentication.login_2fa_post') }}">
             <div class="text-center">
                 <i class="fas fa-key" style="width: 72px; height: 72px; color: lightslategrey"></i>
                 <h1 class="h4 mb-3 font-weight-normal">Two-factor authentication</h1>
@@ -30,7 +30,7 @@
                     <i class="fas fa-arrow-left"></i> Back to Login
                 </a>
             @else
-                <a class="btn btn-primary btn-block" href="{{ route('user_registration.register_2fa') }}" role="button">
+                <a class="btn btn-primary btn-block" href="{{ route('user_registration.register_2fa_get') }}" role="button">
                     <i class="fas fa-arrow-left"></i> Back to 2FA Registration
                 </a>
             @endif

@@ -11,14 +11,14 @@ use Illuminate\Support\Facades\Auth;
 
 class UserAuthenticationController extends Controller
 {
-    public function login_index(Request $request)
+    public function login_get(Request $request)
     {
         $data = [];
         $this->includeAlertMessage($request, $data);
         return view('user_login', $data);
     }
 
-    public function login(UserLoginFormRequest $request, UserRepositoryInterface $userRepository)
+    public function login_post(UserLoginFormRequest $request, UserRepositoryInterface $userRepository)
     {
         if ($this->isServingGlobalTimeout($request, 'user_login')) {
             // User is currently serving a global timeout for brute forcing.
@@ -60,7 +60,7 @@ class UserAuthenticationController extends Controller
         ]);
     }
 
-    public function login_2fa(Request $request, UserRepositoryInterface $userRepository, AuthyApi $authyApi)
+    public function login_2fa_get(Request $request, UserRepositoryInterface $userRepository, AuthyApi $authyApi)
     {
         if (env('APP_ENV') !== 'local') {
             // For production, we need to send sms in order for user to authenticate.
@@ -73,7 +73,7 @@ class UserAuthenticationController extends Controller
         }
     }
 
-    public function login_2fa_verify(UserTwoFactorLoginFormRequest $request, UserRepositoryInterface $userRepository, AuthyApi $authyApi)
+    public function login_2fa_post(UserTwoFactorLoginFormRequest $request, UserRepositoryInterface $userRepository, AuthyApi $authyApi)
     {
         if ($userRepository->isOtpServingTimeout()) {
             // User is currently serving a timeout.
@@ -123,18 +123,18 @@ class UserAuthenticationController extends Controller
         $request->session()->flash('alertType', 'success');
         $request->session()->flash('alertMessage', 'User has been successfully logged out!');
 
-        return redirect()->route('user_authentication.login_index');
+        return redirect()->route('user_authentication.login_get');
     }
 
     private function sendUserToLogin(Request $request, UserRepositoryInterface $userRepository)
     {
         if ($userRepository->isOtpRegistered()) {
             // User has registered the OTP token, ask them to verify now.
-            return redirect()->route('user_authentication.login_2fa');
+            return redirect()->route('user_authentication.login_2fa_get');
         } else {
             // User has not register the OTP token, ask them to register now.
             $this->flashAlertMessage($request, 'warning', 'You are required to setup Two-factor authentication before you are allowed access to your account.');
-            return redirect()->route('user_registration.register_2fa');
+            return redirect()->route('user_registration.register_2fa_get');
         }
     }
 

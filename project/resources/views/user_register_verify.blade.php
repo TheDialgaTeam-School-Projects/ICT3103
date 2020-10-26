@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="register-container">
-        <form class="register-form p-3 rounded" method="post" action="{{ route('user_registration.verify') }}">
+        <form class="register-form p-3 rounded" method="post" action="{{ route('user_registration.register_verify_post') }}">
             <p>Register for iBanking account:</p>
             <h4 class="text-center">Step 1: Verification</h4>
             @if (isset($alertType, $alertMessage))
@@ -49,7 +49,7 @@
                     Enter your date of birth which you have given to the administrator when making your iBanking account.
                 </small>
             </div>
-            <a class="btn btn-primary" href="{{ route('user_authentication.login_index') }}" role="button">
+            <a class="btn btn-primary" href="{{ route('user_authentication.login_get') }}" role="button">
                 <i class="fas fa-arrow-left"></i> Back
             </a>
             <button type="submit" class="btn btn-primary">Verify</button>
