@@ -2,21 +2,12 @@
 
 namespace App\Models;
 
-use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Model for bank transaction table.
- *
- * @package App\Models
- * @property int id
- * @property string transaction_type
- * @property string amount
- * @property CarbonInterface transaction_timestamp
- * @property string bank_account_id
- * @property BankAccount bankAccount
+ * @mixin IdeHelperBankTransaction
  */
 class BankTransaction extends Model
 {

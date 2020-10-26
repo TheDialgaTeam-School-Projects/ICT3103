@@ -2,23 +2,12 @@
 
 namespace App\Models;
 
-use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Model for bank profile otp table.
- *
- * @package App\Models
- * @property int id
- * @property int authy_id
- * @property bool authy_is_verified
- * @property ?CarbonInterface authy_last_request
- * @property int authy_failed_count
- * @property ?CarbonInterface authy_reset_datetime
- * @property string bank_profile_id
- * @property BankProfile bankProfile
+ * @mixin IdeHelperBankProfileOtp
  */
 class BankProfileOtp extends Model
 {

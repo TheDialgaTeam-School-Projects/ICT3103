@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Authy\AuthyApi;
+use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
 use Carbon\Carbon;
 use Godruoyi\Snowflake\Snowflake;
 use Illuminate\Support\ServiceProvider;
@@ -16,6 +17,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        if ($this->app->isLocal()) {
+            $this->app->register(IdeHelperServiceProvider::class);
+        }
+
         $this->app->bind(AuthyApi::class, function ($app) {
             return new AuthyApi($app['config']->get('authy.production_key'));
         });

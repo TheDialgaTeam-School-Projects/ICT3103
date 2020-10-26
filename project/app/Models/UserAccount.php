@@ -2,24 +2,13 @@
 
 namespace App\Models;
 
-use Carbon\CarbonInterface;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
- * Model for user account table.
- *
- * @package App\Models
- * @property string username
- * @property string password
- * @property int password_failed_count
- * @property ?CarbonInterface password_reset_datetime
- * @property string bank_profile_id
- * @property BankProfile bankProfile
- * @property Collection sessions
+ * @mixin IdeHelperUserAccount
  */
 class UserAccount extends Authenticatable
 {

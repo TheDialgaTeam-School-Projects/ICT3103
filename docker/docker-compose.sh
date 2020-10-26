@@ -7,6 +7,21 @@ else
   exit 1
 fi
 
+if [ ! -f ".env" ]; then
+  {
+    echo "APP_NAME="
+    echo "MYSQL_DATABASE="
+    echo "MYSQL_USERNAME="
+    echo "MYSQL_PASSWORD="
+    echo "APACHE_SERVER_ADMIN="
+    echo "APACHE_SERVER_NAME="
+    echo "AUTHY_API_KEY="
+  } > ".env"
+
+  echo "Please edit the .env file before running the compose command again."
+  exit 1
+fi
+
 # Helper Commands
 if [ "$2" == "shell" ]; then
   sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website bash

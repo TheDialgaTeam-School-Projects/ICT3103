@@ -2,20 +2,12 @@
 
 namespace App\Models;
 
-use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Model for user session table.
- *
- * @package App\Models
- * @property int id
- * @property string username
- * @property string ip_address
- * @property CarbonInterface last_logged_in
- * @property UserAccount userAccount
+ * @mixin IdeHelperUserSession
  */
 class UserSession extends Model
 {

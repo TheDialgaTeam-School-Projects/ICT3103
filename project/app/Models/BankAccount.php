@@ -2,40 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Model for bank account table.
- *
- * @package App\Models
- * @property string id
- * @property string balance
- * @property string account_type
- * @property string bank_profile_id
- * @property BankProfile bankProfile
- * @property Collection transactions
+ * @mixin IdeHelperBankAccount
  */
 class BankAccount extends Model
 {
     use HasFactory;
-
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = "bank_account";
-
-    /**
-     * The "type" of the primary key ID.
-     *
-     * @var string
-     */
-    protected $keyType = 'string';
 
     /**
      * Indicates if the IDs are auto-incrementing.
@@ -43,14 +20,24 @@ class BankAccount extends Model
      * @var bool
      */
     public $incrementing = false;
-
     /**
      * Indicates if the model should be timestamped.
      *
      * @var bool
      */
     public $timestamps = false;
-
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = "bank_account";
+    /**
+     * The "type" of the primary key ID.
+     *
+     * @var string
+     */
+    protected $keyType = 'string';
     /**
      * The attributes that are mass assignable.
      *

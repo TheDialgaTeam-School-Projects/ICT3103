@@ -2,23 +2,13 @@
 
 namespace App\Models;
 
-use Carbon\CarbonInterface;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * Model for bank profile table.
- *
- * @package App\Models
- * @property string id
- * @property string identification_id
- * @property CarbonInterface date_of_birth
- * @property ?BankProfileOtp otp
- * @property Collection bankAccounts
- * @property ?UserAccount userAccount
+ * @mixin IdeHelperBankProfile
  */
 class BankProfile extends Model
 {
