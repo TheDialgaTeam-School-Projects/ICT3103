@@ -7,6 +7,7 @@ use App\Http\Requests\UserTwoFactorLoginFormRequest;
 use App\Repository\UserRepositoryInterface;
 use Authy\AuthyApi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 
 class UserAuthenticationController extends Controller
@@ -62,7 +63,7 @@ class UserAuthenticationController extends Controller
 
     public function login_2fa_get(Request $request, UserRepositoryInterface $userRepository, AuthyApi $authyApi)
     {
-        if (env('APP_ENV') !== 'local') {
+        if (App::isProduction()) {
             // For production, we need to send sms in order for user to authenticate.
             $authyApi->requestSms($userRepository->getAuthyId());
             return view('user_login_2fa', [

@@ -33,16 +33,7 @@ services:
     networks:
       - ict3103-network
     environment:
-      BUILD_ENVIRONMENT: "production"
-      APACHE_SERVER_ADMIN: ${APACHE_SERVER_ADMIN}
       APACHE_SERVER_NAME: ${APACHE_SERVER_NAME}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USERNAME: ${MYSQL_USERNAME}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      APP_NAME: ${APP_NAME}
-      APP_ENV: "production"
-      APP_DEBUG: "false"
-      AUTHY_API_KEY: ${AUTHY_API_KEY}
     depends_on:
       - database
     restart: unless-stopped
