@@ -43,10 +43,11 @@ interface UserAccountRepositoryInterface
     /**
      * Get if the user is currently serving a timeout.
      *
+     * @param int|null $duration [optional] Return remaining time for the timeout.
      * @param UserAccount|null $userAccount [optional] Target user account. null for current logged in user.
      * @return bool true if the user is serving a timeout, else false.
      */
-    public function isUserServingTimeout(UserAccount $userAccount = null): bool;
+    public function isUserServingTimeout(int &$duration = null, UserAccount $userAccount = null): bool;
 
     /**
      * Increment user failed count by 1.

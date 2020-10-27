@@ -1,5 +1,33 @@
 #!/usr/bin/env bash
 
+if [ -z "$1" ]; then
+  echo "Docker Compose helper functions."
+  echo ""
+  echo "Usage:"
+  echo "./docker-compose.sh [BUILD_ENVIRONMENT] [COMMANDS] [ARGS...]"
+  echo ""
+  echo "Build Environment:"
+  echo "  development    Install development tools optimize for development usage"
+  echo "  production     Install production tools optimize for production usage"
+  echo ""
+  echo "Commands:"
+  echo "  artisan   Execute laravel command line in the website service (Requires containers to be running)"
+  echo "  build     Build or rebuild services"
+  echo "  chown     Change the ownership of files and directory to the current user"
+  echo "  composer  Execute composer in the website service (Requires containers to be running)"
+  echo "  down      Stop and remove containers, networks, images, and volumes"
+  echo "  exec      Execute a command in a running container"
+  echo "  laravel   Execute laravel command line in the website service (Requires containers to be running)"
+  echo "  npm       Execute npm in the website service (Requires containers to be running)"
+  echo "  shell     Execute a bash shell in the website service (Requires containers to be running)"
+  echo "  start     Start services"
+  echo "  stop      Stop services"
+  echo "  up        Create and start containers"
+  echo "  update    Update existing dependencies and cache (Requires containers to be running)"
+  echo "  * Any other docker-compose command unlisted here is available"
+  exit 0
+fi
+
 if [ "$1" == "development" ] || [ "$1" == "production" ]; then
   BUILD_ENVIRONMENT="$1"
 else
@@ -22,7 +50,7 @@ if [ ! -f ".env" ]; then
     fi
   } >".env"
 
-  echo "Please edit the .env file before running the compose command again."
+  echo "Please edit the .env file before running ./docker-compose.sh again."
   exit 1
 else
   # shellcheck disable=SC2046

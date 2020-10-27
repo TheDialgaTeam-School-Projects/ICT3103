@@ -14,29 +14,23 @@ class UserAuthenticationController extends Controller
 {
     public function login_get(Request $request)
     {
-        $data = [];
-        $this->includeAlertMessage($request, $data);
-        return view('user_login', $data);
+        return view('user_login', $this->includeAlertMessage($request));
     }
 
     public function login_post(UserLoginFormRequest $request, UserRepositoryInterface $userRepository)
     {
-        if ($this->isServingGlobalTimeout($request, 'user_login')) {
+        if ($this->isServingGlobalTimeout($request, 'user_login', $duration)) {
             // User is currently serving a global timeout for brute forcing.
-            return view('user_login', [
-                'alertType' => 'error',
-                'alertMessage' => 'Account authentication has been disabled due to mass failed attempt. Please try again later.',
-            ]);
+            $this->flashAlertMessage($request, 'error', __('auth.throttle', ['seconds' => $duration]));
+            return view('user_login', $this->includeAlertMessage($request));
         }
 
         $user = $userRepository->findUserAccount($request->get('username'));
 
-        if ($userRepository->isUserServingTimeout($user)) {
+        if ($userRepository->isUserServingTimeout($duration, $user)) {
             // User is currently serving a timeout.
-            return view('user_login', [
-                'alertType' => 'error',
-                'alertMessage' => 'Account has been locked due to mass failed attempt. Please try again later.',
-            ]);
+            $this->flashAlertMessage($request, 'error', __('auth.throttle', ['seconds' => $duration]));
+            return view('user_login', $this->includeAlertMessage($request));
         }
 
         if (Auth::attempt($request->only('username', 'password'))) {
@@ -44,7 +38,6 @@ class UserAuthenticationController extends Controller
             $this->resetGlobalFailedCount($request, 'user_login');
             $userRepository->resetUserFailedCount($user);
             $userRepository->logUserSession($request->ip(), $user);
-
             return $this->sendUserToLogin($request, $userRepository);
         }
 
@@ -55,10 +48,8 @@ class UserAuthenticationController extends Controller
             $userRepository->incrementUserFailedCount($user);
         }
 
-        return view('user_login', [
-            'alertType' => 'error',
-            'alertMessage' => 'Either username or password is invalid.',
-        ]);
+        $this->flashAlertMessage($request, 'error', __('auth.failed'));
+        return view('user_login', $this->includeAlertMessage($request));
     }
 
     public function login_2fa_get(Request $request, UserRepositoryInterface $userRepository, AuthyApi $authyApi)
@@ -76,12 +67,10 @@ class UserAuthenticationController extends Controller
 
     public function login_2fa_post(UserTwoFactorLoginFormRequest $request, UserRepositoryInterface $userRepository, AuthyApi $authyApi)
     {
-        if ($userRepository->isOtpServingTimeout()) {
+        if ($userRepository->isOtpServingTimeout($duration)) {
             // User is currently serving a timeout.
-            return view('user_login_2fa', [
-                'alertType' => 'error',
-                'alertMessage' => 'Two-factor authentication has been locked due to mass failed attempt. Please try again later.',
-            ]);
+            $this->flashAlertMessage($request, 'error', __('auth.throttle', ['seconds' => $duration]));
+            return view('user_login_2fa', $this->includeAlertMessage($request));
         }
 
         $validated = $request->validated();
@@ -97,11 +86,8 @@ class UserAuthenticationController extends Controller
             return $this->sendUserToDashboard($request);
         } else {
             $userRepository->incrementOtpFailedCount();
-
-            return view('user_login_2fa', [
-                'alertType' => 'error',
-                'alertMessage' => 'Invalid token.',
-            ]);
+            $this->flashAlertMessage($request, 'error', __('auth.otp_failed'));
+            return view('user_login_2fa', $this->includeAlertMessage($request));
         }
     }
 
@@ -120,10 +106,7 @@ class UserAuthenticationController extends Controller
     public function logout(Request $request)
     {
         Auth::logout();
-
-        $request->session()->flash('alertType', 'success');
-        $request->session()->flash('alertMessage', 'User has been successfully logged out!');
-
+        $this->flashAlertMessage($request, 'success', __('auth.logged_out'));
         return redirect()->route('user_authentication.login_get');
     }
 

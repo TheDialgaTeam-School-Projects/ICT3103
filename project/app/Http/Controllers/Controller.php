@@ -13,7 +13,7 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    private const GLOBAL_TIMEOUT_TRIES = 3;
+    private const GLOBAL_TIMEOUT_TRIES = 5;
     private const GLOBAL_TIMEOUT_DURATION = 5;
 
     /**
@@ -34,16 +34,17 @@ class Controller extends BaseController
      * Include alert message from the session data.
      *
      * @param Request $request
-     * @param $data
+     * @param array $data View data.
+     * @return array merged view data.
      */
-    protected function includeAlertMessage(Request $request, &$data)
+    protected function includeAlertMessage(Request $request, $data = [])
     {
         $session = $request->session();
 
-        if ($session->exists('alertType') && $session->exists('alertMessage')) {
-            $data['alertType'] = $session->get('alertType');
-            $data['alertMessage'] = $session->get('alertMessage');
-        }
+        return array_merge([
+            'alertType' => $session->get('alertType'),
+            'alertMessage' => $session->get('alertMessage'),
+        ], $data);
     }
 
     /**
@@ -82,11 +83,19 @@ class Controller extends BaseController
      *
      * @param Request $request
      * @param string $type
+     * @param int|null $duration
      * @return bool true if the user is currently serving a timeout, else false.
      */
-    protected function isServingGlobalTimeout(Request $request, string $type): bool
+    protected function isServingGlobalTimeout(Request $request, string $type, int &$duration = null): bool
     {
         $session = $request->session();
-        return $session->exists($type . '_reset_datetime') && Carbon::now()->lessThan(Carbon::createFromTimestamp($session->get($type . '_reset_datetime')));
+        if (!$session->exists($type . '_reset_datetime')) return false;
+
+        $currentTimeStamp = Carbon::now()->getTimestamp();
+        $resetTimestamp = $session->get($type . '_reset_datetime');
+        if ($currentTimeStamp >= $resetTimestamp) return false;
+
+        $duration = $resetTimestamp - $currentTimeStamp;
+        return true;
     }
 }

@@ -48,12 +48,13 @@ interface BankProfileOtpRepositoryInterface
     public function isOtpVerified(BankProfile $bankProfile = null): bool;
 
     /**
-     * Get if the otp is currently serving a timeout.
+     * Check if the otp is currently serving a timeout.
      *
+     * @param int|null $duration [optional] Return the remaining timeout duration.
      * @param BankProfile|null $bankProfile [optional] Target bank profile. null for current logged in user bank profile.
      * @return bool true if otp is current serving a timeout, else false.
      */
-    public function isOtpServingTimeout(BankProfile $bankProfile = null): bool;
+    public function isOtpServingTimeout(int &$duration = null, BankProfile $bankProfile = null): bool;
 
     /**
      * Increment otp failed count by 1.

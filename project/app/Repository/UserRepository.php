@@ -150,10 +150,18 @@ class UserRepository implements UserRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function isOtpServingTimeout(BankProfile $bankProfile = null): bool
+    public function isOtpServingTimeout(int &$duration = null, BankProfile $bankProfile = null): bool
     {
         $bankProfile = $this->tryGetLoggedInBankProfile($bankProfile);
-        return isset($bankProfile, $bankProfile->otp, $bankProfile->otp->authy_reset_datetime) && Carbon::now()->lessThan($bankProfile->otp->authy_reset_datetime);
+        if (!isset($bankProfile, $bankProfile->otp, $bankProfile->otp->authy_reset_datetime)) return false;
+
+        $currentTimestamp = Carbon::now()->getTimestamp();
+        $authyResetTimestamp = $bankProfile->otp->authy_reset_datetime->getTimestamp();
+
+        if ($currentTimestamp >= $authyResetTimestamp) return false;
+
+        $duration = $authyResetTimestamp - $currentTimestamp;
+        return true;
     }
 
     /**
@@ -259,10 +267,18 @@ class UserRepository implements UserRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function isUserServingTimeout(UserAccount $userAccount = null): bool
+    public function isUserServingTimeout(int &$duration = null, UserAccount $userAccount = null): bool
     {
         $userAccount = $this->tryGetLoggedInUserAccount($userAccount);
-        return isset($userAccount, $userAccount->password_reset_datetime) && Carbon::now()->lessThan($userAccount->password_reset_datetime);
+        if (!isset($userAccount, $userAccount->password_reset_datetime)) return false;
+
+        $currentTimestamp = Carbon::now()->getTimestamp();
+        $passwordResetTimestamp = $userAccount->password_reset_datetime->getTimestamp();
+
+        if ($currentTimestamp >= $passwordResetTimestamp) return false;
+
+        $duration = $passwordResetTimestamp - $currentTimestamp;
+        return true;
     }
 
     /**
