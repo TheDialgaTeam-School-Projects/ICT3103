@@ -137,6 +137,10 @@ elif [ "$2" == "update" ]; then
     sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan view:cache
   fi
 
+  if [ -d "./../project/storage" ] && [ -d "./../project/bootstrap/cache" ]; then
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
+  fi
+
   sudo chown -R "$(whoami)":"$(whoami)" ./../project
   exit 0
 fi
@@ -146,12 +150,15 @@ if [ "$2" == "shell" ]; then
   sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website bash
 elif [ "$2" == "composer" ]; then
   sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer "${@:3}"
+  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
   sudo chown -R "$(whoami)":"$(whoami)" ./../project
 elif [ "$2" == "npm" ]; then
   sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec npm "${@:3}"
+  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
   sudo chown -R "$(whoami)":"$(whoami)" ./../project
 elif [ "$2" == "laravel" ] || [ "$2" == "artisan" ]; then
   sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan "${@:3}"
+  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
   sudo chown -R "$(whoami)":"$(whoami)" ./../project
 elif [ "$2" == "compile" ]; then
   if [ "$3" == "dev" ] || [ "$3" == "development" ]; then
@@ -162,6 +169,7 @@ elif [ "$2" == "compile" ]; then
     echo "Invalid compile environment option."
     exit 1
   fi
+  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
   sudo chown -R "$(whoami)":"$(whoami)" ./../project
 elif [ "$2" == "chown" ]; then
   sudo chown -R "$(whoami)":"$(whoami)" ./../project

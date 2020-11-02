@@ -33,4 +33,7 @@
             </div>
         </div>
     </nav>
+    <div class="container mt-3" style="background-color: white;">
+
+    </div>
 @endsection

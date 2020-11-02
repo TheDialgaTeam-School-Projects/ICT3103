@@ -2,110 +2,104 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UserRegisterFormRequest;
+use App\Helpers\Helper;
+use App\Http\Requests\UserRegisterCreateFormRequest;
+use App\Http\Requests\UserRegisterIdentifyFormRequest;
 use App\Http\Requests\UserRegisterVerifyFormRequest;
-use App\Http\Requests\UserTwoFactorRegisterFormRequest;
-use App\Repository\UserRepositoryInterface;
-use Authy\AuthyApi;
+use App\Models\BankProfile;
+use App\Models\UserAccount;
+use App\Services\AuthyService;
 use Illuminate\Http\Request;
 
 class UserRegistrationController extends Controller
 {
-    public function register_verify_get(Request $request)
+    private const REGISTER_IDENTIFY_VIEW = 'user_register_identify';
+    private const REGISTER_VERIFY_VIEW = 'user_register_verify';
+    private const REGISTER_CREATE_VIEW = 'user_register_create';
+
+    public function register_identify_get()
     {
-        $data = [];
-        $this->includeAlertMessage($request, $data);
-        return view('user_register_verify', $data);
+        return Helper::viewWithAlertMessage(self::REGISTER_IDENTIFY_VIEW);
     }
 
-    public function register_verify_post(UserRegisterVerifyFormRequest $request, UserRepositoryInterface $userRepository)
+    public function register_identify_post(UserRegisterIdentifyFormRequest $request, BankProfile $bankProfile)
     {
-        if ($this->isServingGlobalTimeout($request, 'user_register_verify')) {
-            // User is serving a global timeout for trying to brute force the verification process.
-            return view('user_register_verify', [
-                'alertType' => 'error',
-                'alertMessage' => 'Account registration has been disabled due to mass failed attempt. Please try again later.',
-            ]);
-        }
+        return Helper::getLockoutOrContinue(self::REGISTER_IDENTIFY_VIEW, function () use ($request, $bankProfile) {
+            $formInputs = $request->validated();
 
-        $validated = $request->validated();
+            if (!$bankProfile->isValidBankProfile($formInputs['identification_id'], $formInputs['date_of_birth'])) {
+                // User seem to have failed the identification check on the bank profile, this is probably because of typo or trying to brute force their way through.
+                Helper::incrementGlobalFailedCount(self::REGISTER_IDENTIFY_VIEW);
+                Helper::flashAlertMessage('error', Helper::__('registration.user_identify_failed'));
+                return Helper::viewWithAlertMessage(self::REGISTER_IDENTIFY_VIEW);
+            }
 
-        if ($userRepository->isUserAccountCreated($validated['bank_profile_id'])) {
-            // User has already created a bank profile with this bank profile id.
-            return view('user_register_verify', [
-                'alertType' => 'error',
-                'alertMessage' => 'User has already created an account with this bank profile.',
-            ]);
-        }
+            // User is identified.
+            $bankProfileId = $bankProfile->getBankProfileId($formInputs['identification_id']);
 
-        if (!$userRepository->isBankProfileValid($validated['bank_profile_id'], $validated['identification_id'], $validated['date_of_birth'])) {
-            // User seem to have failed the verification check on the bank profile, this is probably because of typo or trying to brute force their way through.
-            $this->incrementGlobalFailedCount($request, 'user_register_verify');
+            if ($bankProfile->isUserAccountCreated($bankProfileId)) {
+                // User seem to have owned an account.
+                Helper::incrementGlobalFailedCount(self::REGISTER_IDENTIFY_VIEW);
+                Helper::flashAlertMessage('error', Helper::__('registration.user_identify_user_has_account'));
+                return Helper::viewWithAlertMessage(self::REGISTER_IDENTIFY_VIEW);
+            }
 
-            return view('user_register_verify', [
-                'alertType' => 'error',
-                'alertMessage' => 'Identification id and Date of Birth must match the registered Bank Profile Id.',
-            ]);
-        }
+            // User does not own an account, proceed to verification.
+            Helper::resetGlobalFailedCount(self::REGISTER_IDENTIFY_VIEW);
+            Helper::getSession()->put('bank_profile_id', $bankProfileId);
+            return Helper::getRedirect()->route('user_registration.register_verify_get');
+        });
+    }
 
-        // User has successfully validated the bank profile and should now bring you to register page.
-        $this->resetGlobalFailedCount($request, 'user_register_verify');
-        $request->session()->put('bank_profile_id', $validated['bank_profile_id']);
-        return redirect()->route('user_registration.register_create_get');
+    public function register_verify_get(Request $request, AuthyService $authyService)
+    {
+        return Helper::checkSessionBeforeContinue('user_registration.register_identify_get', ['bank_profile_id'], function ($sessionData) use ($request, $authyService) {
+            $bankProfileId = $sessionData['bank_profile_id'];
+            $isSmsForced = $request->input('force_sms', false);
+
+            if (!$authyService->requestSms($bankProfileId, $isSmsForced, $reason)) {
+                Helper::flashAlertMessage('error', $reason);
+            }
+
+            return Helper::viewWithAlertMessage(self::REGISTER_VERIFY_VIEW);
+        });
+    }
+
+    public function register_verify_post(UserRegisterVerifyFormRequest $request, AuthyService $authyService)
+    {
+        return Helper::checkSessionBeforeContinue('user_registration.register_identify_get', ['bank_profile_id'], function ($sessionData) use ($request, $authyService) {
+            return Helper::getLockoutOrContinue(self::REGISTER_VERIFY_VIEW, function () use ($sessionData, $request, $authyService) {
+                $bankProfileId = $sessionData['bank_profile_id'];
+                $formInputs = $request->validated();
+
+                if (!$authyService->verifyToken($bankProfileId, $formInputs['two_factor_token'])) {
+                    // User failed to verify a valid token.
+                    Helper::incrementGlobalFailedCount(self::REGISTER_VERIFY_VIEW);
+                    Helper::flashAlertMessage('error', Helper::__('registration.user_verify_failed'));
+                    return Helper::viewWithAlertMessage(self::REGISTER_VERIFY_VIEW);
+                }
+
+                // User has successfully verified and should now bring you to register page.
+                Helper::resetGlobalFailedCount(self::REGISTER_VERIFY_VIEW);
+                return Helper::getRedirect()->route('user_registration.register_create_get');
+            });
+        });
     }
 
     public function register_create_get()
     {
-        return view('user_register');
+        return Helper::checkSessionBeforeContinue('user_registration.register_identify_get', ['bank_profile_id'], function () {
+            return Helper::viewWithAlertMessage(self::REGISTER_CREATE_VIEW);
+        });
     }
 
-    public function register_create_post(UserRegisterFormRequest $request, UserRepositoryInterface $userRepository)
+    public function register_create_post(UserRegisterCreateFormRequest $request, UserAccount $userAccount)
     {
-        if (!$request->session()->has('bank_profile_id')) {
-            // Invalid session, maybe the user take too long to complete hence the session variable is gone.
-            $this->flashAlertMessage($request, 'error', 'Session has expired. Please try again.');
-            return redirect()->route('user_registration.register_verify_get');
-        }
-
-        $validated = $request->validated();
-
-        $userRepository->createUserAccount(
-            $validated['username'],
-            $validated['password'],
-            $request->session()->pull('bank_profile_id')
-        );
-
-        $this->flashAlertMessage($request, 'success', 'User has been successfully created!');
-        return redirect()->route('user_authentication.login_get');
-    }
-
-    public function register_2fa_get(Request $request)
-    {
-        $data = [];
-        $this->includeAlertMessage($request, $data);
-        return view('user_register_2fa', $data);
-    }
-
-    public function register_2fa_post(UserTwoFactorRegisterFormRequest $request, UserRepositoryInterface $userRepository, AuthyApi $authyApi)
-    {
-        $validated = $request->validated();
-        $authyUser = $authyApi->registerUser($validated['email_address'], $validated['mobile_number'], 65);
-
-        if (!$authyUser->ok()) {
-            // Invalid 2FA credentials used to register this account. Sorry :P
-            return view('user_register_2fa', [
-                'alertType' => 'error',
-                'alertMessage' => 'Email or Mobile number is invalid.',
-            ]);
-        }
-
-        // Register the 2FA credentials and verify...?
-        if (!$userRepository->isOtpRegistered()) {
-            $userRepository->registerBankProfileOtp($authyUser->id());
-        } else {
-            $userRepository->updateBankProfileOtp($authyUser->id());
-        }
-
-        return redirect()->route('user_authentication.login_2fa_get');
+        return Helper::checkSessionBeforeContinue('user_registration.register_identify_get', ['bank_profile_id'], function ($sessionData) use ($request, $userAccount) {
+            $formInputs = $request->validated();
+            $userAccount->createAccount($formInputs['username'], $formInputs['password'], $sessionData['bank_profile_id']);
+            Helper::flashAlertMessage('success', 'User has been successfully created!');
+            return Helper::getRedirect()->route('user_authentication.login_get');
+        });
     }
 }

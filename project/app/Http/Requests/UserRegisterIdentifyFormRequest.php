@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UserRegisterVerifyFormRequest extends FormRequest
+class UserRegisterIdentifyFormRequest extends FormRequest
 {
     public function authorize()
     {
@@ -14,7 +14,8 @@ class UserRegisterVerifyFormRequest extends FormRequest
     public function rules()
     {
         return [
-            'two_factor_token' => ['required', 'digits:6']
+            'identification_id' => ['required', 'string', 'max:255'],
+            'date_of_birth' => ['required', 'date', 'before: today'],
         ];
     }
 }

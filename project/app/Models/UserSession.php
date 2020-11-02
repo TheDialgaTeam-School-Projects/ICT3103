@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -65,5 +66,10 @@ class UserSession extends Model
     public function userAccount()
     {
         return $this->belongsTo(UserAccount::class, 'username', 'username');
+    }
+
+    public function logUserSession(string $username, string $ip)
+    {
+        return $this->create(['username' => $username, 'ip_address' => $ip, 'last_logged_in' => Carbon::now()]);
     }
 }

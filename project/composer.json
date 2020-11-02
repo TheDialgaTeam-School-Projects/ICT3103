@@ -1,21 +1,20 @@
 {
     "name": "ict3x03/project",
     "type": "project",
-    "description": "This repo contains the source code for Team 4 (TeamWork) for ICT3103/ICT3203 Secure Software Development.",
+    "description": "This repo contains the source code for Team 4 (TeamWork) for ICT3x03 Secure Software Development.",
     "keywords": [
         "laravel"
     ],
     "license": "MIT",
     "require": {
         "php": "^7.3",
+        "ext-pdo": "*",
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^8.0",
         "laravel/tinker": "^2.0",
-        "authy/php": "^4.0.0-rc1",
-        "godruoyi/php-snowflake": "^1.0.11",
-        "ext-pdo": "*"
+        "authy/php": "^4.0.0-rc1"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.8",

@@ -22,20 +22,6 @@ class BankProfile extends Model
     protected $table = "bank_profile";
 
     /**
-     * The "type" of the primary key ID.
-     *
-     * @var string
-     */
-    protected $keyType = 'string';
-
-    /**
-     * Indicates if the IDs are auto-incrementing.
-     *
-     * @var bool
-     */
-    public $incrementing = false;
-
-    /**
      * Indicates if the model should be timestamped.
      *
      * @var bool
@@ -48,18 +34,10 @@ class BankProfile extends Model
      * @var string[]
      */
     protected $fillable = [
-        'id',
         'identification_id',
         'date_of_birth',
-    ];
-
-    /**
-     * The model's attributes.
-     *
-     * @var array
-     */
-    protected $attributes = [
-        'bank_profile_otp_id' => null,
+        'name',
+        'email',
     ];
 
     /**
@@ -99,5 +77,53 @@ class BankProfile extends Model
     public function userAccount()
     {
         return $this->hasOne(UserAccount::class, 'bank_profile_id');
+    }
+
+    /**
+     * Find the bank profile by identification id.
+     *
+     * @param string $identificationId User identification id.
+     * @return BankProfile|null bank profile object if it exist, else null.
+     */
+    public function findByIdentificationId(string $identificationId): ?BankProfile
+    {
+        return $this->firstWhere('identification_id', $identificationId);
+    }
+
+    /**
+     * Get bank profile id.
+     *
+     * @param string $identificationId User identification id.
+     * @return int|null bank profile id.
+     */
+    public function getBankProfileId(string $identificationId): ?int
+    {
+        $bankProfile = $this->findByIdentificationId($identificationId);
+        return isset($bankProfile) ? $bankProfile->id : null;
+    }
+
+    /**
+     * Check if the bank profile is valid.
+     *
+     * @param string $identificationId User identification id.
+     * @param string $dateOfBirth User date of birth.
+     * @return bool true if the bank profile matches, else false.
+     */
+    public function isValidBankProfile(string $identificationId, string $dateOfBirth): bool
+    {
+        $bankProfile = $this->findByIdentificationId($identificationId);
+        return isset($bankProfile) && $bankProfile->date_of_birth->isSameAs('Y-m-d', $dateOfBirth);
+    }
+
+    /**
+     * Check if the user account is created.
+     *
+     * @param int $id
+     * @return bool true if the user account is created, else false.
+     */
+    public function isUserAccountCreated(int $id): bool
+    {
+        $bankProfile = $this->find($id);
+        return isset($bankProfile, $bankProfile->userAccount);
     }
 }

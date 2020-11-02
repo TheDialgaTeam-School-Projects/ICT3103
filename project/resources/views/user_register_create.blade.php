@@ -5,8 +5,7 @@
 @section('content')
     <div class="register-container">
         <form class="register-form p-3 rounded" method="post" action="{{ route('user_registration.register_create_post') }}">
-            <p>Register for iBanking account:</p>
-            <h4 class="text-center">Step 2: Registration</h4>
+            <h4 class="text-center">Step 3: Registration</h4>
             @if (isset($alertType, $alertMessage))
                 <x-alert :alert-type="$alertType" :alert-message="$alertMessage"></x-alert>
             @endif
@@ -46,7 +45,7 @@
                 @enderror
             </div>
             <a class="btn btn-primary" href="{{ route('user_authentication.login_get') }}" role="button">
-                <i class="fas fa-arrow-left"></i> Back
+                <i class="fas fa-arrow-left"></i> Back to Login
             </a>
             <button type="submit" class="btn btn-primary">Register</button>
             @csrf

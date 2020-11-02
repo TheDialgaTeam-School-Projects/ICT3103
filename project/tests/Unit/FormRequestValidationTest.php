@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Http\Requests\UserLoginFormRequest;
-use App\Http\Requests\UserRegisterFormRequest;
+use App\Http\Requests\UserRegisterCreateFormRequest;
 use App\Http\Requests\UserRegisterVerifyFormRequest;
 use App\Http\Requests\UserTwoFactorLoginFormRequest;
 use App\Http\Requests\UserTwoFactorRegisterFormRequest;
@@ -24,7 +24,7 @@ class FormRequestValidationTest extends TestCase
 
     public function testUserRegisterFormRequestRequiredRules()
     {
-        $formRequest = new UserRegisterFormRequest();
+        $formRequest = new UserRegisterCreateFormRequest();
         $this->assertEquals([
             'username' => ['required', 'alpha_dash', 'min:3', 'max:255', 'unique:App\Models\UserAccount,username'],
             'password' => ['required', 'string', 'min:8', new Password()],

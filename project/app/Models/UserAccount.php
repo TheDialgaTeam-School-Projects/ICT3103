@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Helpers\Helper;
+use Carbon\Carbon;
+use Hash;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -106,5 +109,58 @@ class UserAccount extends Authenticatable
     public function sessions()
     {
         return $this->hasMany(UserSession::class, 'username', 'username');
+    }
+
+    public function createAccount(string $username, string $password, int $bankProfileId)
+    {
+        return $this->create([
+            'username' => $username,
+            'password' => Hash::make($password),
+            'bank_profile_id' => $bankProfileId,
+        ]);
+    }
+
+    public function isServingTimeout(string $username, int &$duration = null): bool
+    {
+        $userAccount = $this->find($username);
+        if (!isset($userAccount, $userAccount->password_reset_datetime)) {
+            $duration = 0;
+            return false;
+        }
+
+        $resetTimestamp = $userAccount->password_reset_datetime;
+        $currentTimeStamp = Carbon::now();
+
+        if ($currentTimeStamp->lessThan($resetTimestamp)) {
+            $duration = $resetTimestamp->getTimestamp() - $currentTimeStamp->getTimestamp();
+            return true;
+        } else {
+            $duration = 0;
+            return false;
+        }
+    }
+
+    public function incrementFailedCount(string $username): bool
+    {
+        $userAccount = $this->find($username);
+        if (!isset($userAccount)) return false;
+
+        $userAccount->password_failed_count++;
+
+        if ($userAccount->password_failed_count >= Helper::getConfig()->get('lockout.user_account.max_attempt')) {
+            $userAccount->password_failed_count = 0;
+            $userAccount->password_reset_datetime = Carbon::now()->addMinutes(Helper::getConfig()->get('lockout.user_account.lockout_duration'));
+        }
+
+        return $userAccount->save();
+    }
+
+    public function resetFailedCount(string $username): bool
+    {
+        $userAccount = $this->find($username);
+        if (!isset($userAccount)) return false;
+
+        $userAccount->password_failed_count = 0;
+        return $userAccount->save();
     }
 }

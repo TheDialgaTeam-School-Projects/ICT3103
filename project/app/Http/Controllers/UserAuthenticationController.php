@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Helper;
 use App\Http\Requests\UserLoginFormRequest;
 use App\Http\Requests\UserTwoFactorLoginFormRequest;
+use App\Models\UserAccount;
+use App\Models\UserSession;
 use App\Repository\UserRepositoryInterface;
 use Authy\AuthyApi;
 use Illuminate\Http\Request;
@@ -12,44 +15,38 @@ use Illuminate\Support\Facades\Auth;
 
 class UserAuthenticationController extends Controller
 {
-    public function login_get(Request $request)
+    private const USER_LOGIN_VIEW = 'user_login';
+
+    public function login_get()
     {
-        return view('user_login', $this->includeAlertMessage($request));
+        return Helper::viewWithAlertMessage(self::USER_LOGIN_VIEW);
     }
 
-    public function login_post(UserLoginFormRequest $request, UserRepositoryInterface $userRepository)
+    public function login_post(UserLoginFormRequest $request, UserAccount $userAccount, UserSession $userSession)
     {
-        if ($this->isServingGlobalTimeout($request, 'user_login', $duration)) {
-            // User is currently serving a global timeout for brute forcing.
-            $this->flashAlertMessage($request, 'error', __('auth.throttle', ['seconds' => $duration]));
-            return view('user_login', $this->includeAlertMessage($request));
-        }
+        return Helper::getLockoutOrContinue(self::USER_LOGIN_VIEW, function () use ($request, $userAccount, $userSession){
+            $formInputs = $request->validated();
 
-        $user = $userRepository->findUserAccount($request->get('username'));
+            if ($userAccount->isServingTimeout($formInputs['username'], $duration)) {
+                // User is currently serving a timeout.
+                Helper::flashAlertMessage('error', Helper::__('auth.throttle', ['seconds' => $duration]));
+                return Helper::viewWithAlertMessage(self::USER_LOGIN_VIEW);
+            }
 
-        if ($userRepository->isUserServingTimeout($duration, $user)) {
-            // User is currently serving a timeout.
-            $this->flashAlertMessage($request, 'error', __('auth.throttle', ['seconds' => $duration]));
-            return view('user_login', $this->includeAlertMessage($request));
-        }
+            if (!Auth::attempt($request->only('username', 'password'))) {
+                // User failed to log in.
+                $userAccount->incrementFailedCount($formInputs['username']);
+                Helper::incrementGlobalFailedCount(self::USER_LOGIN_VIEW);
+                Helper::flashAlertMessage('error', Helper::__('auth.failed'));
+                return Helper::viewWithAlertMessage(self::USER_LOGIN_VIEW);
+            }
 
-        if (Auth::attempt($request->only('username', 'password'))) {
             // User has logged in.
-            $this->resetGlobalFailedCount($request, 'user_login');
-            $userRepository->resetUserFailedCount($user);
-            $userRepository->logUserSession($request->ip(), $user);
-            return $this->sendUserToLogin($request, $userRepository);
-        }
-
-        // User failed to log in.
-        if ($user === null) {
-            $this->incrementGlobalFailedCount($request, 'user_login');
-        } else {
-            $userRepository->incrementUserFailedCount($user);
-        }
-
-        $this->flashAlertMessage($request, 'error', __('auth.failed'));
-        return view('user_login', $this->includeAlertMessage($request));
+            Helper::resetGlobalFailedCount(self::USER_LOGIN_VIEW);
+            $userAccount->resetFailedCount($formInputs['username']);
+            $userSession->logUserSession($formInputs['username'], $request->ip());
+            return Helper::getRedirect()->route('user_authentication.login_2fa_get');
+        });
     }
 
     public function login_2fa_get(Request $request, UserRepositoryInterface $userRepository, AuthyApi $authyApi)
@@ -103,23 +100,11 @@ class UserAuthenticationController extends Controller
         return $this->sendUserToLogin($request, $userRepository);
     }
 
-    public function logout(Request $request)
+    public function logout()
     {
         Auth::logout();
-        $this->flashAlertMessage($request, 'success', __('auth.logged_out'));
-        return redirect()->route('user_authentication.login_get');
-    }
-
-    private function sendUserToLogin(Request $request, UserRepositoryInterface $userRepository)
-    {
-        if ($userRepository->isOtpRegistered()) {
-            // User has registered the OTP token, ask them to verify now.
-            return redirect()->route('user_authentication.login_2fa_get');
-        } else {
-            // User has not register the OTP token, ask them to register now.
-            $this->flashAlertMessage($request, 'warning', 'You are required to setup Two-factor authentication before you are allowed access to your account.');
-            return redirect()->route('user_registration.register_2fa_get');
-        }
+        Helper::flashAlertMessage('success', Helper::__('auth.logged_out'));
+        return Helper::getRedirect()->route('user_authentication.login_get');
     }
 
     private function sendUserToDashboard(Request $request, bool $skipSessionUpdate = false)

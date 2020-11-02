@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use App\Rules\Password;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UserRegisterFormRequest extends FormRequest
+class UserRegisterCreateFormRequest extends FormRequest
 {
     public function authorize()
     {

@@ -15,7 +15,7 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USERNAME}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    restart: unless-stopped
+    restart: on-failure
 
   website:
     build:
@@ -34,7 +34,7 @@ services:
       APACHE_SERVER_NAME: ${APACHE_SERVER_NAME}
     depends_on:
       - database
-    restart: unless-stopped
+    restart: on-failure
 
 volumes:
   ict3103-volume:

@@ -31,7 +31,7 @@
                 @enderror
             </div>
             <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-            <a class="btn btn-lg btn-primary btn-block" href="{{ route('user_registration.register_verify_get') }}"
+            <a class="btn btn-lg btn-primary btn-block" href="{{ route('user_registration.register_identify_get') }}"
                role="button">Register</a>
             @csrf
         </form>

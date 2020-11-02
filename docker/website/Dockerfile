@@ -10,7 +10,7 @@ COPY apache-*.conf /etc/apache2/sites-available/
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
-RUN chmod u+x /root/build_run.sh && /root/build_run.sh && rm /root/build_run.sh
+RUN bash /root/build_run.sh && rm /root/build_run.sh
 
 WORKDIR /var/www/html
 
