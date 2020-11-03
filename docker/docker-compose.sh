@@ -37,8 +37,6 @@ fi
 
 if [ ! -f ".env" ]; then
   {
-    echo "APP_URL="
-    echo ""
     echo "APACHE_SERVER_NAME="
     echo ""
     echo "MYSQL_DATABASE="
@@ -70,7 +68,6 @@ if [ "$2" == "up" ]; then
         echo "APP_ENV=production"
         echo "APP_DEBUG=false"
       fi
-      echo "APP_URL=$APP_URL"
       echo "APP_KEY="
       echo ""
       echo "DB_CONNECTION=mysql"
@@ -84,82 +81,82 @@ if [ "$2" == "up" ]; then
     } >"./../project/.env"
   fi
 
-  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" build
-  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" up -d
+  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" build
+  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" up -d
 
   if [ "${BUILD_ENVIRONMENT}" = "development" ]; then
-    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer install
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer install
   else
-    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer install --optimize-autoloader --no-dev
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer install --optimize-autoloader --no-dev
   fi
 
   if [ -d "./../project/storage" ] && [ -d "./../project/bootstrap/cache" ]; then
-    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
   fi
 
   if [ ! -f "./../project/.dockerinstalled" ]; then
-    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan key:generate
-    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan migrate:fresh --seed --force
-    touch ./../project/.dockerinstalled
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan key:generate
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan migrate:fresh --seed --force
+    sudo touch ./../project/.dockerinstalled
   fi
 
   if [ "${BUILD_ENVIRONMENT}" = "production" ]; then
-    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan config:cache
-    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan route:cache
-    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan view:cache
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan config:cache
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan route:cache
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan view:cache
   else
-    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan config:clear
-    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan route:clear
-    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan view:clear
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan config:clear
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan route:clear
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan view:clear
   fi
 
-  chown -R "$(whoami)":"$(whoami)" ./../project
+  sudo sudo chown -R "$(whoami)":"$(whoami)" ./../project
   exit 0
 elif [ "$2" == "update" ]; then
-  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec node npm update --legacy-peer-deps
+  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec node npm update --legacy-peer-deps
 
   if [ "${BUILD_ENVIRONMENT}" = "development" ]; then
-    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer update
-    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec node npm run dev
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer update
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec node npm run dev
   else
-    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer update --optimize-autoloader --no-dev
-    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec node npm run production
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer update --optimize-autoloader --no-dev
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec node npm run production
   fi
 
-  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan config:clear
-  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan route:clear
-  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan view:clear
+  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan config:clear
+  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan route:clear
+  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan view:clear
 
   if [ "${BUILD_ENVIRONMENT}" = "production" ]; then
-    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan config:cache
-    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan route:cache
-    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan view:cache
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan config:cache
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan route:cache
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan view:cache
   fi
 
   if [ -d "./../project/storage" ] && [ -d "./../project/bootstrap/cache" ]; then
-    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
+    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
   fi
 
-  chown -R "$(whoami)":"$(whoami)" ./../project
+  sudo chown -R "$(whoami)":"$(whoami)" ./../project
   exit 0
 fi
 
 # Helper Commands
 if [ "$2" == "shell" ]; then
-  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website bash
+  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website bash
 elif [ "$2" == "composer" ]; then
-  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer "${@:3}"
-  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
-  chown -R "$(whoami)":"$(whoami)" ./../project
+  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer "${@:3}"
+  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
+  sudo chown -R "$(whoami)":"$(whoami)" ./../project
 elif [ "$2" == "npm" ]; then
-  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec node npm "${@:3}"
-  chown -R "$(whoami)":"$(whoami)" ./../project
+  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec node npm "${@:3}"
+  sudo chown -R "$(whoami)":"$(whoami)" ./../project
 elif [ "$2" == "laravel" ] || [ "$2" == "artisan" ]; then
-  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan "${@:3}"
-  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
-  chown -R "$(whoami)":"$(whoami)" ./../project
+  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan "${@:3}"
+  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
+  sudo chown -R "$(whoami)":"$(whoami)" ./../project
 elif [ "$2" == "chown" ]; then
-  chown -R "$(whoami)":"$(whoami)" ./../project
+  sudo chown -R "$(whoami)":"$(whoami)" ./../project
 else
-  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" "${@:2}"
+  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" "${@:2}"
 fi
