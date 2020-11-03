@@ -37,6 +37,8 @@ fi
 
 if [ ! -f ".env" ]; then
   {
+    echo "APP_URL="
+    echo ""
     echo "APACHE_SERVER_NAME="
     echo ""
     echo "MYSQL_DATABASE="
@@ -68,6 +70,7 @@ if [ "$2" == "up" ]; then
         echo "APP_ENV=production"
         echo "APP_DEBUG=false"
       fi
+      echo "APP_URL=$APP_URL"
       echo "APP_KEY="
       echo ""
       echo "DB_CONNECTION=mysql"
