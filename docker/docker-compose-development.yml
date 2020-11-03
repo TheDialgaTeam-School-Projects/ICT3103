@@ -19,7 +19,7 @@ services:
 
   node:
     image: node:alpine
-    container_name: ICT3x03-Node-Development
+    container_name: ICT3x03-Node
     volumes:
       - ./../project:/var/www/html
     networks:
@@ -34,7 +34,7 @@ services:
         BUILD_ENVIRONMENT: development
       context: ./website
     image: ict3x03/php:7.4-apache-development
-    container_name: ICT3x03-Website-Development
+    container_name: ICT3x03-Website
     ports:
       - 80:80
     volumes:
