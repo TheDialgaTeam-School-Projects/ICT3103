@@ -18,7 +18,7 @@ trait RedirectHelperTrait
     /**
      * @return Redirector
      */
-    public static function getRedirect()
+    public static function getRedirect(): Redirector
     {
         if (!isset(self::$redirect)) {
             self::$redirect = Container::getInstance()->make('redirect');

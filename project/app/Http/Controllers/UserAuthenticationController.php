@@ -7,113 +7,119 @@ use App\Http\Requests\UserLoginFormRequest;
 use App\Http\Requests\UserTwoFactorLoginFormRequest;
 use App\Models\UserAccount;
 use App\Models\UserSession;
-use App\Repository\UserRepositoryInterface;
-use Authy\AuthyApi;
+use App\Services\AuthyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 
 class UserAuthenticationController extends Controller
 {
+    public const LOGIN_VERIFIED_SESSION_TOKEN = 'login_verified';
+
     private const USER_LOGIN_VIEW = 'user_login';
+    private const USER_2FA_VIEW = 'user_login_2fa';
 
     public function login_get()
     {
-        return Helper::viewWithAlertMessage(self::USER_LOGIN_VIEW);
+        return $this->view(self::USER_LOGIN_VIEW);
     }
 
     public function login_post(UserLoginFormRequest $request, UserAccount $userAccount, UserSession $userSession)
     {
-        return Helper::getLockoutOrContinue(self::USER_LOGIN_VIEW, function () use ($request, $userAccount, $userSession){
+        return $this->getGlobalLockoutViewOrContinue(self::USER_LOGIN_VIEW, function () use ($request, $userAccount, $userSession) {
             $formInputs = $request->validated();
 
             if ($userAccount->isServingTimeout($formInputs['username'], $duration)) {
                 // User is currently serving a timeout.
-                Helper::flashAlertMessage('error', Helper::__('auth.throttle', ['seconds' => $duration]));
-                return Helper::viewWithAlertMessage(self::USER_LOGIN_VIEW);
+                $this->flashAlertMessage('error', $this->__('auth.throttle', ['seconds' => $duration]));
+                return $this->view(self::USER_LOGIN_VIEW);
             }
 
             if (!Auth::attempt($request->only('username', 'password'))) {
                 // User failed to log in.
+                $this->incrementGlobalLockoutFailedCount(self::USER_LOGIN_VIEW);
                 $userAccount->incrementFailedCount($formInputs['username']);
-                Helper::incrementGlobalFailedCount(self::USER_LOGIN_VIEW);
-                Helper::flashAlertMessage('error', Helper::__('auth.failed'));
-                return Helper::viewWithAlertMessage(self::USER_LOGIN_VIEW);
+                $this->flashAlertMessage('error', Helper::__('auth.failed'));
+                return $this->view(self::USER_LOGIN_VIEW);
             }
 
             // User has logged in.
-            Helper::resetGlobalFailedCount(self::USER_LOGIN_VIEW);
+            $this->resetGlobalLockoutFailedCount(self::USER_LOGIN_VIEW);
             $userAccount->resetFailedCount($formInputs['username']);
             $userSession->logUserSession($formInputs['username'], $request->ip());
-            return Helper::getRedirect()->route('user_authentication.login_2fa_get');
+            return $this->redirectToRoute('user_authentication.login_2fa_get');
         });
     }
 
-    public function login_2fa_get(Request $request, UserRepositoryInterface $userRepository, AuthyApi $authyApi)
+    public function login_2fa_get(Request $request, AuthyService $authyService, UserAccount $userAccount)
     {
         if (App::isProduction()) {
             // For production, we need to send sms in order for user to authenticate.
-            $authyApi->requestSms($userRepository->getAuthyId());
-            return view('user_login_2fa', [
-                'isOtpVerified' => $userRepository->isOtpVerified(),
-            ]);
-        } else {
-            return $this->sendUserToDashboard($request);
-        }
-    }
+            $bankProfileId = $userAccount->getBankProfileId(Auth::id());
+            $isSmsForced = $request->input('force_sms', false);
 
-    public function login_2fa_post(UserTwoFactorLoginFormRequest $request, UserRepositoryInterface $userRepository, AuthyApi $authyApi)
-    {
-        if ($userRepository->isOtpServingTimeout($duration)) {
-            // User is currently serving a timeout.
-            $this->flashAlertMessage($request, 'error', __('auth.throttle', ['seconds' => $duration]));
-            return view('user_login_2fa', $this->includeAlertMessage($request));
-        }
-
-        $validated = $request->validated();
-        $authyResponse = $authyApi->verifyToken($userRepository->getAuthyId(), $validated['2fa_token']);
-
-        if ($authyResponse->ok()) {
-            $userRepository->resetOtpFailedCount();
-
-            if (!$userRepository->isOtpVerified()) {
-                $userRepository->setOtpVerified();
+            if (!$authyService->requestSms($bankProfileId, $isSmsForced, $reason)) {
+                $this->flashAlertMessage('error', $reason);
             }
 
-            return $this->sendUserToDashboard($request);
+            return $this->view(self::USER_2FA_VIEW);
         } else {
-            $userRepository->incrementOtpFailedCount();
-            $this->flashAlertMessage($request, 'error', __('auth.otp_failed'));
-            return view('user_login_2fa', $this->includeAlertMessage($request));
+            // For development, we want to save API cost hence this will skip the 2FA authentication.
+            return $this->sendUserToDashboard();
         }
     }
 
-    public function login_check(Request $request, UserRepositoryInterface $userRepository)
+    public function login_2fa_post(UserTwoFactorLoginFormRequest $request, AuthyService $authyService, UserAccount $userAccount)
     {
-        $session = $request->session();
-        $isLoggedIn = $session->get('LOGIN_VERIFIED', false);
+        return $this->getGlobalLockoutViewOrContinue(self::USER_2FA_VIEW, function () use ($request, $authyService, $userAccount) {
+            if ($userAccount->isServingTimeout(Auth::id(), $duration)) {
+                // User is currently serving a timeout.
+                $this->flashAlertMessage('error', $this->__('auth.throttle', ['seconds' => $duration]));
+                return view(self::USER_2FA_VIEW);
+            }
 
-        if ($isLoggedIn) {
-            return $this->sendUserToDashboard($request, true);
-        }
+            $bankProfileId = $userAccount->getBankProfileId(Auth::id());
+            $formInputs = $request->validated();
 
-        return $this->sendUserToLogin($request, $userRepository);
+            if (!$authyService->verifyToken($bankProfileId, $formInputs['two_factor_token'])) {
+                // User failed to verify a valid token.
+                $this->incrementGlobalLockoutFailedCount(self::USER_2FA_VIEW);
+                $userAccount->incrementFailedCount(Auth::id());
+                $this->flashAlertMessage('error', $this->__('auth.otp_failed'));
+                return $this->view(self::USER_2FA_VIEW);
+            }
+
+            // User has successfully verified and should now bring you to register page.
+            $this->resetGlobalLockoutFailedCount(self::USER_2FA_VIEW);
+            $userAccount->resetFailedCount(Auth::id());
+            return $this->sendUserToDashboard();
+        });
     }
 
     public function logout()
     {
         Auth::logout();
-        Helper::flashAlertMessage('success', Helper::__('auth.logged_out'));
-        return Helper::getRedirect()->route('user_authentication.login_get');
+        $this->flashAlertMessage('success', $this->__('auth.logged_out'));
+        return $this->redirectToRoute('user_authentication.login_get');
     }
 
-    private function sendUserToDashboard(Request $request, bool $skipSessionUpdate = false)
+    public function login_check()
+    {
+        $isTwoFactorVerified = $this->getSession()->get(self::LOGIN_VERIFIED_SESSION_TOKEN, false);
+
+        if ($isTwoFactorVerified) {
+            return $this->sendUserToDashboard(true);
+        } else {
+            return $this->redirectToRoute('user_authentication.login_2fa_get');
+        }
+    }
+
+    private function sendUserToDashboard(bool $skipSessionUpdate = false)
     {
         if (!$skipSessionUpdate) {
-            $session = $request->session();
-            $session->put('LOGIN_VERIFIED', true);
+            $this->getSession()->put(self::LOGIN_VERIFIED_SESSION_TOKEN, true);
         }
 
-        return redirect()->route('dashboard.index');
+        return $this->redirectToRoute('dashboard.index');
     }
 }

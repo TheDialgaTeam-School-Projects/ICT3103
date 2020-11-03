@@ -2,14 +2,14 @@ version: "3.8"
 services:
   database:
     image: mysql:latest
-    container_name: ict3103-database
+    container_name: ICT3x03-Database
     command: --default-authentication-plugin=mysql_native_password
     ports:
       - 3306:3306
     volumes:
-      - ict3103-volume:/var/lib/mysql
+      - ict3x03-volume:/var/lib/mysql
     networks:
-      - ict3103-network
+      - ict3x03-network
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -17,30 +17,42 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     restart: on-failure
 
+  node:
+    image: node:alpine
+    container_name: ICT3x03-Node-Development
+    volumes:
+      - ./../project:/var/www/html
+    networks:
+      - ict3x03-network
+    working_dir: /var/www/html
+    command: sh -c "npm install --legacy-peer-deps && npm run dev && npm run watch"
+    restart: on-failure
+
   website:
     build:
       args:
         BUILD_ENVIRONMENT: development
       context: ./website
-    image: ict3103/php:7.4-apache-development
-    container_name: ict3103-website
+    image: ict3x03/php:7.4-apache-development
+    container_name: ICT3x03-Website-Development
     ports:
       - 80:80
     volumes:
       - ./../project:/var/www/html
     networks:
-      - ict3103-network
+      - ict3x03-network
     environment:
       APACHE_SERVER_NAME: ${APACHE_SERVER_NAME}
     depends_on:
       - database
+      - node
     restart: on-failure
 
 volumes:
-  ict3103-volume:
-    name: ict3103-volume
+  ict3x03-volume:
+    name: ict3x03-volume
 
 networks:
-  ict3103-network:
-    name: ict3103-network
+  ict3x03-network:
+    name: ict3x03-network
     driver: bridge

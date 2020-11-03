@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
-use App\Helpers\Helper;
 use App\Models\BankProfileOtp;
 use Authy\AuthyApi;
+use Illuminate\Contracts\Translation\Translator;
 
 class AuthyService
 {
@@ -18,31 +18,41 @@ class AuthyService
      */
     private $bankProfileOtp;
 
-    public function __construct(AuthyApi $authyApi, BankProfileOtp $bankProfileOtp)
+    /**
+     * @var Translator
+     */
+    private $translator;
+
+    public function __construct(AuthyApi $authyApi, BankProfileOtp $bankProfileOtp, Translator $translator)
     {
         $this->authyApi = $authyApi;
         $this->bankProfileOtp = $bankProfileOtp;
+        $this->translator = $translator;
     }
 
     public function requestSms(int $bankProfileId, bool $force = false, string &$reason = null): bool
     {
-        if (!$this->bankProfileOtp->isRequestOtpAvailable($bankProfileId, $duration)) {
-            $reason = Helper::__('registration.user_verify_timeout', ['seconds' => $duration]);
+        $isRequestOtpAvailable = $this->bankProfileOtp->isRequestOtpAvailable($bankProfileId, $otpDuration);
+
+        if (!$isRequestOtpAvailable && $force) {
+            $reason = $this->translator->choice('otp.request_timeout', $otpDuration, ['seconds' => $otpDuration]);
             return false;
         }
 
         if ($this->bankProfileOtp->isServingTimeout($bankProfileId, $duration)) {
-            $reason = Helper::__('registration.user_verify_timeout', ['seconds' => $duration]);
+            $reason = $this->translator->choice('lockout.message', $duration, ['seconds' => $duration]);
             return false;
         }
 
-        // Requesting Sms is available.
-        $this->bankProfileOtp->incrementLastRequestDateTime($bankProfileId);
-        $request = $this->authyApi->requestSms($this->bankProfileOtp->getAuthyId($bankProfileId), ['force' => $force ? 'true' : 'false']);
+        if ($isRequestOtpAvailable) {
+            // Requesting Sms is available.
+            $this->bankProfileOtp->incrementLastRequestDateTime($bankProfileId);
+            $request = $this->authyApi->requestSms($this->bankProfileOtp->getAuthyId($bankProfileId), ['force' => $force ? 'true' : 'false']);
 
-        if (!$request->ok()) {
-            $reason = print_r($request->errors());
-            return false;
+            if (!$request->ok()) {
+                $reason = print_r($request->errors(), true);
+                return false;
+            }
         }
 
         return true;

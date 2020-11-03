@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
 
 apt-get update
-apt-get install --no-install-recommends -y lsb-release gnupg zip unzip
-
-curl -sL https://deb.nodesource.com/setup_lts.x | bash -
-apt-get install --no-install-recommends -y nodejs
-
+apt-get install --no-install-recommends -y zip unzip
 apt-get autoremove -y
 apt-get clean
 rm -rf /var/lib/apt/lists/*

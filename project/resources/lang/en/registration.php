@@ -28,7 +28,7 @@ return [
 
     'user_verify_request_button' => 'Request via SMS',
 
-    'user_verify_invalid_session' => 'Session is invalid or expired.',
     'user_verify_failed' => 'Invalid token.',
     'user_verify_timeout' => 'Too many request made. Please try again in :seconds seconds.',
+
 ];

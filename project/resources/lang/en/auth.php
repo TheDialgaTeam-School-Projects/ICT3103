@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'logged_out' => 'User has been successfully logged out.',
+    'logged_out' => 'User has successfully logged out.',
     'failed' => 'These credentials do not match our records.',
     'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
     'otp_failed' => 'Token mismatch.',

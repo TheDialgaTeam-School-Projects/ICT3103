@@ -6,7 +6,7 @@
 namespace App\Helpers\Traits;
 
 use Illuminate\Container\Container;
-use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 
 trait ViewHelperTrait
@@ -14,7 +14,7 @@ trait ViewHelperTrait
     use SessionHelperTrait;
 
     /**
-     * @var Factory
+     * @var ViewFactory
      */
     private static $view;
 
@@ -46,12 +46,12 @@ trait ViewHelperTrait
     }
 
     /**
-     * @return Factory
+     * @return ViewFactory
      */
-    public static function getView(): Factory
+    public static function getView(): ViewFactory
     {
         if (!isset(self::$view)) {
-            self::$view = Container::getInstance()->make(Factory::class);
+            self::$view = Container::getInstance()->make(ViewFactory::class);
         }
 
         return self::$view;

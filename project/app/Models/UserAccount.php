@@ -120,6 +120,16 @@ class UserAccount extends Authenticatable
         ]);
     }
 
+    public function getUserAccount(string $username): UserAccount
+    {
+        return $this->find($username);
+    }
+
+    public function getBankProfileId(string $username): int
+    {
+        return $this->find($username)->bank_profile_id;
+    }
+
     public function isServingTimeout(string $username, int &$duration = null): bool
     {
         $userAccount = $this->find($username);

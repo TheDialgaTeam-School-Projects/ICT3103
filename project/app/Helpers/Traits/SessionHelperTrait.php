@@ -30,27 +30,6 @@ trait SessionHelperTrait
         self::getSession()->flash('alertMessage', $alertMessage);
     }
 
-    public static function checkSessionBeforeContinue(string $redirectRoute, array $sessionKeys, callable $continuation)
-    {
-        if (!array_reduce(array_map(function ($key) {
-            return self::getSession()->has($key);
-        }, $sessionKeys), function ($a, $b) {
-            return $a && $b;
-        }, true)) {
-            // Session is probably expired or invalid.
-            self::flashAlertMessage('error', self::__('common.invalid_session'));
-            return self::getRedirect()->route($redirectRoute);
-        }
-
-        $sessionData = [];
-
-        foreach ($sessionKeys as $sessionKey) {
-            $sessionData[$sessionKey] = self::getSession()->get($sessionKey);
-        }
-
-        return $continuation($sessionData);
-    }
-
     /**
      * @return SessionManager|Store
      */

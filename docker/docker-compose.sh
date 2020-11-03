@@ -44,7 +44,7 @@ if [ ! -f ".env" ]; then
     echo "MYSQL_PASSWORD="
     echo ""
     echo "AUTHY_API_KEY="
-    if [ "${BUILD_ENVIRONMENT}" == "production" ]; then
+    if [ "$BUILD_ENVIRONMENT" == "production" ]; then
       echo ""
       echo "SSL_CERT_PASSWORD="
     fi
@@ -61,7 +61,7 @@ fi
 if [ "$2" == "up" ]; then
   if [ ! -f "./../project/.env" ]; then
     {
-      if [ "${BUILD_ENVIRONMENT}" == "development" ]; then
+      if [ "$BUILD_ENVIRONMENT" == "development" ]; then
         echo "APP_ENV=local"
         echo "APP_DEBUG=true"
       else
@@ -73,106 +73,90 @@ if [ "$2" == "up" ]; then
       echo "DB_CONNECTION=mysql"
       echo "DB_HOST=database"
       echo "DB_PORT=3306"
-      echo "DB_DATABASE=${MYSQL_DATABASE}"
-      echo "DB_USERNAME=${MYSQL_USERNAME}"
-      echo "DB_PASSWORD=${MYSQL_PASSWORD}"
+      echo "DB_DATABASE=$MYSQL_DATABASE"
+      echo "DB_USERNAME=$MYSQL_USERNAME"
+      echo "DB_PASSWORD=$MYSQL_PASSWORD"
       echo ""
-      echo "AUTHY_API_KEY=${AUTHY_API_KEY}"
+      echo "AUTHY_API_KEY=$AUTHY_API_KEY"
     } >"./../project/.env"
   fi
 
-  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" build
-  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" up -d
-
-  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website npm install
+  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" build
+  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" up -d
 
   if [ "${BUILD_ENVIRONMENT}" = "development" ]; then
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer install
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website npm run dev
+    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer install
   else
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer install --optimize-autoloader --no-dev
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website npm run production
+    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer install --optimize-autoloader --no-dev
   fi
 
   if [ -d "./../project/storage" ] && [ -d "./../project/bootstrap/cache" ]; then
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
+    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
   fi
 
   if [ ! -f "./../project/.dockerinstalled" ]; then
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan key:generate
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan migrate:fresh --seed --force
+    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan key:generate
+    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan migrate:fresh --seed --force
     touch ./../project/.dockerinstalled
   fi
 
   if [ "${BUILD_ENVIRONMENT}" = "production" ]; then
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan config:cache
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan route:cache
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan view:cache
+    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan config:cache
+    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan route:cache
+    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan view:cache
   else
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan config:clear
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan route:clear
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan view:clear
+    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan config:clear
+    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan route:clear
+    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan view:clear
   fi
 
-  sudo chown -R "$(whoami)":"$(whoami)" ./../project
+  chown -R "$(whoami)":"$(whoami)" ./../project
   exit 0
 elif [ "$2" == "update" ]; then
-  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website npm update
+  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec node npm update --legacy-peer-deps
 
   if [ "${BUILD_ENVIRONMENT}" = "development" ]; then
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer update
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website npm run dev
+    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer update
+    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec node npm run dev
   else
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer update --optimize-autoloader --no-dev
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website npm run production
+    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer update --optimize-autoloader --no-dev
+    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec node npm run production
   fi
 
-  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan config:clear
-  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan route:clear
-  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan view:clear
+  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan config:clear
+  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan route:clear
+  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan view:clear
 
   if [ "${BUILD_ENVIRONMENT}" = "production" ]; then
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan config:cache
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan route:cache
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan view:cache
+    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan config:cache
+    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan route:cache
+    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan view:cache
   fi
 
   if [ -d "./../project/storage" ] && [ -d "./../project/bootstrap/cache" ]; then
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
+    docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
   fi
 
-  sudo chown -R "$(whoami)":"$(whoami)" ./../project
+  chown -R "$(whoami)":"$(whoami)" ./../project
   exit 0
 fi
 
 # Helper Commands
 if [ "$2" == "shell" ]; then
-  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website bash
+  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website bash
 elif [ "$2" == "composer" ]; then
-  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer "${@:3}"
-  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
-  sudo chown -R "$(whoami)":"$(whoami)" ./../project
+  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer "${@:3}"
+  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
+  chown -R "$(whoami)":"$(whoami)" ./../project
 elif [ "$2" == "npm" ]; then
-  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec npm "${@:3}"
-  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
-  sudo chown -R "$(whoami)":"$(whoami)" ./../project
+  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec node npm "${@:3}"
+  chown -R "$(whoami)":"$(whoami)" ./../project
 elif [ "$2" == "laravel" ] || [ "$2" == "artisan" ]; then
-  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan "${@:3}"
-  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
-  sudo chown -R "$(whoami)":"$(whoami)" ./../project
-elif [ "$2" == "compile" ]; then
-  if [ "$3" == "dev" ] || [ "$3" == "development" ]; then
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website npm run dev
-  elif [ "$3" == "production" ]; then
-    sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website npm run production
-  else
-    echo "Invalid compile environment option."
-    exit 1
-  fi
-  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
-  sudo chown -R "$(whoami)":"$(whoami)" ./../project
+  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan "${@:3}"
+  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
+  chown -R "$(whoami)":"$(whoami)" ./../project
 elif [ "$2" == "chown" ]; then
-  sudo chown -R "$(whoami)":"$(whoami)" ./../project
+  chown -R "$(whoami)":"$(whoami)" ./../project
 else
-  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" "${@:2}"
+  docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" "${@:2}"
 fi
