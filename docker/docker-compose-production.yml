@@ -18,14 +18,14 @@ services:
     restart: unless-stopped
 
   node:
-    image: node:alpine
+    image: node:lts-alpine
     container_name: ICT3x03-Node-Development
     volumes:
       - ./../project:/var/www/html
     networks:
       - ict3x03-network
     working_dir: /var/www/html
-    command: sh -c "npm install --legacy-peer-deps && npm run production"
+    command: sh -c "npm install && npm run production"
     restart: "no"
 
   website:

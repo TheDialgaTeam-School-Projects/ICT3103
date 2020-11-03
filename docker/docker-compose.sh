@@ -113,7 +113,7 @@ if [ "$2" == "up" ]; then
   sudo sudo chown -R "$(whoami)":"$(whoami)" ./../project
   exit 0
 elif [ "$2" == "update" ]; then
-  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec node npm update --legacy-peer-deps
+  sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec node npm update
 
   if [ "${BUILD_ENVIRONMENT}" = "development" ]; then
     sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer update
