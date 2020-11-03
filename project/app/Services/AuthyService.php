@@ -35,12 +35,12 @@ class AuthyService
         $isRequestOtpAvailable = $this->bankProfileOtp->isRequestOtpAvailable($bankProfileId, $otpDuration);
 
         if (!$isRequestOtpAvailable && $force) {
-            $reason = $this->translator->choice('otp.request_timeout', $otpDuration, ['seconds' => $otpDuration]);
+            $reason = $this->translator->choice('otp.request_timeout', $otpDuration);
             return false;
         }
 
         if ($this->bankProfileOtp->isServingTimeout($bankProfileId, $duration)) {
-            $reason = $this->translator->choice('lockout.message', $duration, ['seconds' => $duration]);
+            $reason = $this->translator->choice('lockout.message', $duration);
             return false;
         }
 

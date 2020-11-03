@@ -69,8 +69,8 @@ class Controller extends BaseController
     protected function view(string $view, array $data = []): View
     {
         return $this->viewFactory->make($view, $data, [
-            'alertType' => $this->session->get('alertType'),
-            'alertMessage' => $this->session->get('alertMessage'),
+            'alertType' => $this->session->pull('alertType'),
+            'alertMessage' => $this->session->pull('alertMessage'),
         ]);
     }
 
@@ -111,7 +111,7 @@ class Controller extends BaseController
     {
         if ($this->isGlobalLockoutActive($view, $duration)) {
             // Global Lockout is active.
-            $this->flashAlertMessage('error', $this->translator->choice('lockout.message', $duration, ['seconds', $duration]));
+            $this->flashAlertMessage('error', $this->translator->choice('lockout.message', $duration));
             return $this->view($view);
         }
 

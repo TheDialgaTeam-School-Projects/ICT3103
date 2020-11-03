@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\Helper;
 use App\Http\Requests\UserLoginFormRequest;
 use App\Http\Requests\UserTwoFactorLoginFormRequest;
 use App\Models\UserAccount;
@@ -39,7 +38,7 @@ class UserAuthenticationController extends Controller
                 // User failed to log in.
                 $this->incrementGlobalLockoutFailedCount(self::USER_LOGIN_VIEW);
                 $userAccount->incrementFailedCount($formInputs['username']);
-                $this->flashAlertMessage('error', Helper::__('auth.failed'));
+                $this->flashAlertMessage('error', $this->__('auth.failed'));
                 return $this->view(self::USER_LOGIN_VIEW);
             }
 
