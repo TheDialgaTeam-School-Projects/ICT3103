@@ -26,7 +26,7 @@ services:
       - ict3x03-network
     working_dir: /var/www/html
     command: sh -c "npm install --legacy-peer-deps && npm run production"
-    restart: no
+    restart: "no"
 
   website:
     build:
@@ -47,6 +47,7 @@ services:
       APACHE_SERVER_NAME: ${APACHE_SERVER_NAME}
     depends_on:
       - database
+      - node
     restart: unless-stopped
 
 volumes:
