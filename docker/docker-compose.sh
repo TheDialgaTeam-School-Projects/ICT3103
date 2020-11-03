@@ -110,7 +110,7 @@ if [ "$2" == "up" ]; then
     sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan view:clear
   fi
 
-  sudo sudo chown -R "$(whoami)":"$(whoami)" ./../project
+  sudo chown -R "$(whoami)":"$(whoami)" ./../project
   exit 0
 elif [ "$2" == "update" ]; then
   sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec node npm update
