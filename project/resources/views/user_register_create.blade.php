@@ -4,16 +4,20 @@
 
 @section('content')
     <div class="register-container">
-        <form class="register-form p-3 rounded" method="post" action="{{ route('user_registration.register_create_post') }}">
+        <form class="register-form p-3 rounded"
+              method="post" action="{{ route('user_registration.register_create_post') }}">
             <h4 class="text-center">Step 3: Registration</h4>
             @if (isset($alertType, $alertMessage))
                 <x-alert :alert-type="$alertType" :alert-message="$alertMessage"></x-alert>
             @endif
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" class="form-control @error('username') is-invalid @enderror" id="username"
-                       name="username" placeholder="Username" aria-describedby="username_hint" minlength="3"
-                       maxlength="255" required value="{{ old('username') }}"/>
+                <input type="text" class="form-control @error('username') is-invalid @enderror"
+                       id="username" name="username"
+                       placeholder="Username"
+                       required minlength="3" maxlength="255"
+                       aria-describedby="username_hint"
+                       value="{{ old('username') }}"/>
                 @error('username')
                 <div id="username_feedback" class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -23,8 +27,11 @@
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" class="form-control @error('password') is-invalid @enderror" id="password"
-                       name="password" placeholder="Password" aria-describedby="password_hint" minlength="8" required
+                <input type="password" class="form-control @error('password') is-invalid @enderror"
+                       id="password" name="password"
+                       placeholder="Password"
+                       required minlength="8"
+                       aria-describedby="password_hint"
                        value="{{ old('password') }}">
                 @error('password')
                 <div id="password_feedback" class="invalid-feedback">{{ $message }}</div>
@@ -37,9 +44,11 @@
             <div class="form-group">
                 <label for="password_confirm">Confirm Password</label>
                 <input type="password" class="form-control @error('password_confirm') is-invalid @enderror"
-                       id="password_confirm" name="password_confirm" placeholder="Confirm Password"
-                       aria-describedby="@error('password_confirm') password_confirm_feedback @enderror" minlength="8"
-                       required value="{{ old('password_confirm') }}">
+                       id="password_confirm" name="password_confirm"
+                       placeholder="Confirm Password"
+                       required minlength="8"
+                       aria-describedby="@error('password_confirm') password_confirm_feedback @enderror"
+                       value="{{ old('password_confirm') }}">
                 @error('password_confirm')
                 <div id="password_confirm_feedback" class="invalid-feedback">{{ $message }}</div>
                 @enderror

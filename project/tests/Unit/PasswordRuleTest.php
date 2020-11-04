@@ -14,7 +14,6 @@ class PasswordRuleTest extends TestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->passwordTestRule = new Password();
     }
 

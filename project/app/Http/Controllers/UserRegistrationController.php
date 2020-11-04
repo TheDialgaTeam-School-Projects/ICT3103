@@ -12,6 +12,9 @@ use Illuminate\Http\Request;
 
 class UserRegistrationController extends Controller
 {
+    public const BANK_PROFILE_ID_SESSION_KEY = 'bank_profile_id';
+    public const REGISTER_USER_VERIFIED_SESSION_KEY = 'register_user_verified';
+
     private const REGISTER_IDENTIFY_VIEW = 'user_register_identify';
     private const REGISTER_VERIFY_VIEW = 'user_register_verify';
     private const REGISTER_CREATE_VIEW = 'user_register_create';
@@ -45,7 +48,7 @@ class UserRegistrationController extends Controller
 
             // User does not own an account, proceed to verification.
             $this->resetGlobalLockoutFailedCount(self::REGISTER_IDENTIFY_VIEW);
-            $this->getSession()->put('bank_profile_id', $bankProfileId);
+            $this->getSession()->put(self::BANK_PROFILE_ID_SESSION_KEY, $bankProfileId);
 
             return $this->redirectToRoute('user_registration.register_verify_get');
         });
@@ -53,7 +56,7 @@ class UserRegistrationController extends Controller
 
     public function register_verify_get(Request $request, AuthyService $authyService)
     {
-        $bankProfileId = $this->getSession()->get('bank_profile_id');
+        $bankProfileId = $this->getSession()->get(self::BANK_PROFILE_ID_SESSION_KEY);
         $isSmsForced = $request->input('force_sms', false);
 
         if (!$authyService->requestSms($bankProfileId, $isSmsForced, $reason)) {
@@ -66,7 +69,7 @@ class UserRegistrationController extends Controller
     public function register_verify_post(UserRegisterVerifyFormRequest $request, AuthyService $authyService)
     {
         return $this->getGlobalLockoutViewOrContinue(self::REGISTER_VERIFY_VIEW, function () use ($request, $authyService) {
-            $bankProfileId = $this->getSession()->get('bank_profile_id');
+            $bankProfileId = $this->getSession()->get(self::BANK_PROFILE_ID_SESSION_KEY);
             $formInputs = $request->validated();
 
             if (!$authyService->verifyToken($bankProfileId, $formInputs['two_factor_token'])) {
@@ -78,7 +81,7 @@ class UserRegistrationController extends Controller
 
             // User has successfully verified and should now bring you to register page.
             $this->resetGlobalLockoutFailedCount(self::REGISTER_VERIFY_VIEW);
-            $this->getSession()->put('register_user_verified', true);
+            $this->getSession()->put(self::REGISTER_USER_VERIFIED_SESSION_KEY, true);
             return $this->redirectToRoute('user_registration.register_create_get');
         });
     }
@@ -90,7 +93,7 @@ class UserRegistrationController extends Controller
 
     public function register_create_post(UserRegisterCreateFormRequest $request, UserAccount $userAccount)
     {
-        $bankProfileId = $this->getSession()->get('bank_profile_id');
+        $bankProfileId = $this->getSession()->get(self::BANK_PROFILE_ID_SESSION_KEY);
         $formInputs = $request->validated();
 
         $userAccount->createAccount($formInputs['username'], $formInputs['password'], $bankProfileId);

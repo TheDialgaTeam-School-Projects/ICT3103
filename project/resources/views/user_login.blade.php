@@ -12,8 +12,10 @@
             @endif
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" class="form-control @error('username') is-invalid @enderror" id="username"
-                       name="username" placeholder="Username" required
+                <input type="text" class="form-control @error('username') is-invalid @enderror"
+                       id="username" name="username"
+                       placeholder="Username"
+                       required
                        aria-describedby="@error('username') username_feedback @enderror"
                        value="{{ old('username') }}"/>
                 @error('username')
@@ -22,8 +24,10 @@
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" class="form-control @error('password') is-invalid @enderror" id="password"
-                       name="password" placeholder="Password" required
+                <input type="password" class="form-control @error('password') is-invalid @enderror"
+                       id="password" name="password"
+                       placeholder="Password"
+                       required
                        aria-describedby="@error('password') password_feedback @enderror"
                        value="{{ old('password') }}"/>
                 @error('password')
@@ -31,8 +35,8 @@
                 @enderror
             </div>
             <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-            <a class="btn btn-lg btn-primary btn-block" href="{{ route('user_registration.register_identify_get') }}"
-               role="button">Register</a>
+            <a class="btn btn-lg btn-primary btn-block" role="button"
+               href="{{ route('user_registration.register_identify_get') }}">Register</a>
             @csrf
         </form>
     </div>

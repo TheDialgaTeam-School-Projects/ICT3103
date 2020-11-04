@@ -27,12 +27,12 @@ Route::middleware('guest')->group(function () {
     Route::post('/register/identify', [UserRegistrationController::class, 'register_identify_post'])->name('user_registration.register_identify_post');
 
     // Route that requires bank_profile_id to be in session or redirect to identify user page.
-    Route::middleware('session:bank_profile_id,user_registration.register_identify_get')->group(function () {
+    Route::middleware(sprintf('session:%s,user_registration.register_identify_get', UserRegistrationController::BANK_PROFILE_ID_SESSION_KEY))->group(function () {
         // Register Step 2: Verify User
         Route::get('/register/verify', [UserRegistrationController::class, 'register_verify_get'])->name('user_registration.register_verify_get');
         Route::post('/register/verify', [UserRegistrationController::class, 'register_verify_post'])->name('user_registration.register_verify_post');
 
-        Route::middleware('session:register_user_verified,user_registration.register_identify_get')->group(function () {
+        Route::middleware(sprintf('session:%s,user_registration.register_identify_get', UserRegistrationController::REGISTER_USER_VERIFIED_SESSION_KEY))->group(function () {
             // Register Step 3: Create Account
             Route::get('/register/create', [UserRegistrationController::class, 'register_create_get'])->name('user_registration.register_create_get');
             Route::post('/register/create', [UserRegistrationController::class, 'register_create_post'])->name('user_registration.register_create_post');

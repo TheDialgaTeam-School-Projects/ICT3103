@@ -21,7 +21,6 @@ class MobileNumberRuleTest extends TestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->faker = Factory::create();
         $this->mobileNumberRule = new MobileNumber();
     }
