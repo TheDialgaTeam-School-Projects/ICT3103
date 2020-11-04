@@ -22,4 +22,5 @@ docker run -v "$PROJECT_DIR":/var/www/html --name ICT3x03-node --rm node:lts-alp
 
 chown -R jenkins:jenkins "$PROJECT_DIR"
 
+docker run -v "$PROJECT_DIR":/var/www/html --name ICT3x03-website --rm ict3x03/php:7.4-apache-development php artisan key:generate
 docker run -v "$PROJECT_DIR":/var/www/html --name ICT3x03-website --rm ict3x03/php:7.4-apache-development php artisan test
