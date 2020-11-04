@@ -32,9 +32,11 @@ Route::middleware('guest')->group(function () {
         Route::get('/register/verify', [UserRegistrationController::class, 'register_verify_get'])->name('user_registration.register_verify_get');
         Route::post('/register/verify', [UserRegistrationController::class, 'register_verify_post'])->name('user_registration.register_verify_post');
 
-        // Register Step 3: Create Account
-        Route::get('/register/create', [UserRegistrationController::class, 'register_create_get'])->name('user_registration.register_create_get');
-        Route::post('/register/create', [UserRegistrationController::class, 'register_create_post'])->name('user_registration.register_create_post');
+        Route::middleware('session:register_user_verified,user_registration.register_identify_get')->group(function () {
+            // Register Step 3: Create Account
+            Route::get('/register/create', [UserRegistrationController::class, 'register_create_get'])->name('user_registration.register_create_get');
+            Route::post('/register/create', [UserRegistrationController::class, 'register_create_post'])->name('user_registration.register_create_post');
+        });
     });
 });
 

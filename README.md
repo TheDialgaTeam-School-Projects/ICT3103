@@ -70,10 +70,9 @@ Typically, this string should be 32 characters long. The key can be set in the `
 
 After cloning this repository, you should create a `.env` environment file in `project` directory containing the minimum:
 
-* APP_NAME=
 * APP_ENV=<local/production>
-* APP_KEY=<GENERATED VIA `php artisan key:generate`>
 * APP_DEBUG=false
+* APP_KEY=<GENERATED VIA `php artisan key:generate`>
 * DB_CONNECTION=mysql
 * DB_HOST=
 * DB_PORT=3306
@@ -92,12 +91,10 @@ You are required to set .env for docker to build the correct image for the websi
 
 After cloning this repository, you should create a `.env` environment file in `docker` directory containing the minimum:
 
-* APP_NAME=
+* APACHE_SERVER_ADMIN=
 * MYSQL_DATABASE=
 * MYSQL_USERNAME=
 * MYSQL_PASSWORD=
-* APACHE_SERVER_ADMIN=
-* APACHE_SERVER_NAME=
 * AUTHY_API_KEY=
 
 Production variables:

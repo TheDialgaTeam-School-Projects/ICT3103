@@ -27,7 +27,7 @@ class UserTwoFactorRegisterFormRequest extends FormRequest
     {
         return [
             'email_address' => ['required', 'email:rfc'],
-            'mobile_number' => ['required', new MobileNumber()]
+            'mobile_number' => ['required', new MobileNumber()],
         ];
     }
 }

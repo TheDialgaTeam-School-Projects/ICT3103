@@ -78,6 +78,7 @@ class UserRegistrationController extends Controller
 
             // User has successfully verified and should now bring you to register page.
             $this->resetGlobalLockoutFailedCount(self::REGISTER_VERIFY_VIEW);
+            $this->getSession()->put('register_user_verified', true);
             return $this->redirectToRoute('user_registration.register_create_get');
         });
     }

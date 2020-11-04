@@ -14,7 +14,7 @@ class UserRegisterVerifyFormRequest extends FormRequest
     public function rules()
     {
         return [
-            'two_factor_token' => ['required', 'digits:6']
+            'two_factor_token' => ['required', 'digits:6'],
         ];
     }
 }

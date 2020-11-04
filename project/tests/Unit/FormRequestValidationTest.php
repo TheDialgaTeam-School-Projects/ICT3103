@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Http\Requests\UserLoginFormRequest;
 use App\Http\Requests\UserRegisterCreateFormRequest;
+use App\Http\Requests\UserRegisterIdentifyFormRequest;
 use App\Http\Requests\UserRegisterVerifyFormRequest;
 use App\Http\Requests\UserTwoFactorLoginFormRequest;
 use App\Http\Requests\UserTwoFactorRegisterFormRequest;
@@ -22,7 +23,7 @@ class FormRequestValidationTest extends TestCase
         ], $formRequest->rules());
     }
 
-    public function testUserRegisterFormRequestRequiredRules()
+    public function testUserRegisterCreateFormRequestRequiredRules()
     {
         $formRequest = new UserRegisterCreateFormRequest();
         $this->assertEquals([
@@ -32,13 +33,20 @@ class FormRequestValidationTest extends TestCase
         ], $formRequest->rules());
     }
 
+    public function testUserRegisterIdentifyFormRequestRequiredRules()
+    {
+        $formRequest = new UserRegisterIdentifyFormRequest();
+        $this->assertEquals([
+            'identification_id' => ['required', 'string', 'max:255'],
+            'date_of_birth' => ['required', 'date', 'before: today'],
+        ], $formRequest->rules());
+    }
+
     public function testUserRegisterVerifyFormRequestRequiredRules()
     {
         $formRequest = new UserRegisterVerifyFormRequest();
         $this->assertEquals([
-            'bank_profile_id' => ['required', 'string', 'exists:App\Models\BankProfile,id'],
-            'identification_id' => ['required', 'string', 'max:255'],
-            'date_of_birth' => ['required', 'date', 'before: today'],
+            'two_factor_token' => ['required', 'digits:6'],
         ], $formRequest->rules());
     }
 
@@ -46,7 +54,7 @@ class FormRequestValidationTest extends TestCase
     {
         $formRequest = new UserTwoFactorLoginFormRequest();
         $this->assertEquals([
-            '2fa_token' => ['required', 'digits:6']
+            'two_factor_token' => ['required', 'digits:6'],
         ], $formRequest->rules());
     }
 
@@ -55,7 +63,7 @@ class FormRequestValidationTest extends TestCase
         $formRequest = new UserTwoFactorRegisterFormRequest();
         $this->assertEquals([
             'email_address' => ['required', 'email:rfc'],
-            'mobile_number' => ['required', new MobileNumber()]
+            'mobile_number' => ['required', new MobileNumber()],
         ], $formRequest->rules());
     }
 }
