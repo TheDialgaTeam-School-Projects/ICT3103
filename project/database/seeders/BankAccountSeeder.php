@@ -68,6 +68,11 @@ class BankAccountSeeder extends Seeder
                         'balance' => 1000,
                         'account_type' => 'savings',
                     ],
+                    [
+                        'id' => '0018527415',
+                        'balance' => 1000,
+                        'account_type' => 'savings',
+                    ],
                 ],
                 'UserAccount' => [
                     'username' => 'jianmingyong',

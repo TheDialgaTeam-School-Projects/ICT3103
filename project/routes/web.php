@@ -54,4 +54,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard/account/list', [DashboardController::class, 'bank_account_list'])->name('dashboard.bank_account_list');
     Route::get('/dashboard/account/{id}', [DashboardController::class, 'bank_account_transaction'])->name('dashboard.bank_account_transaction');
+    Route::get('/dashboard/account/{id}/transfer', [DashboardController::class, 'bank_account_transfer_get'])->name('dashboard.bank_account_transfer_get');
+    Route::post('/dashboard/account/{id}/transfer', [DashboardController::class, 'bank_account_transfer_post'])->name('dashboard.bank_account_transfer_post');
 });

@@ -9,17 +9,17 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    public function view(string $view, array $data = [], $mergeData = []): View
-    {
-        return parent::view($view, $data, [
-            'username' => Auth::id()
-        ]);
-    }
-
     public function bank_account_list(UserAccount $userAccount)
     {
         return $this->view('bank_account_list', [
             'bankAccounts' => $userAccount->getBankAccounts(Auth::id()),
+        ]);
+    }
+
+    public function view(string $view, array $data = [], $mergeData = []): View
+    {
+        return parent::view($view, $data, [
+            'username' => Auth::id()
         ]);
     }
 
@@ -33,6 +33,20 @@ class DashboardController extends Controller
         }
 
         return $this->view('bank_account_transaction', [
+            'id' => $id,
+        ]);
+    }
+
+    public function bank_account_transfer_get(string $id)
+    {
+        return $this->view('bank_account_transfer', [
+            'id' => $id,
+        ]);
+    }
+
+    public function bank_account_transfer_post(string $id)
+    {
+        return $this->view('bank_account_transfer', [
             'id' => $id,
         ]);
     }

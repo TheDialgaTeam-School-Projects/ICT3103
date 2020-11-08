@@ -1,10 +1,10 @@
 @extends('layouts.dashboard')
 
-@section('title', 'User Dashboard')
+@section('title', 'Bank Account')
 
 @section('content')
     @parent
-    <div class="container p-4" style="background-color: white;">
+    <div class="container dashboard-container p-4">
         @if (isset($alertType, $alertMessage))
             <x-alert :alert-type="$alertType" :alert-message="$alertMessage"></x-alert>
         @endif

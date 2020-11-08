@@ -5,7 +5,7 @@
 @section('content')
     <div class="register-container">
         <form class="register-form p-3 rounded"
-              method="post" action="{{ route('user_registration.register_create_post') }}">
+              method="post" action="{{ \App\Helpers\Helper::route('user_registration.register_create_post') }}">
             <h4 class="text-center">Step 3: Registration</h4>
             @if (isset($alertType, $alertMessage))
                 <x-alert :alert-type="$alertType" :alert-message="$alertMessage"></x-alert>
@@ -53,7 +53,8 @@
                 <div id="password_confirm_feedback" class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
-            <a class="btn btn-primary" href="{{ route('user_authentication.login_get') }}" role="button">
+            <a class="btn btn-primary" role="button"
+               href="{{ \App\Helpers\Helper::route('user_authentication.login_get') }}">
                 <i class="fas fa-arrow-left"></i> Back to Login
             </a>
             <button type="submit" class="btn btn-primary">Register</button>
