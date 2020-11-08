@@ -2,20 +2,18 @@
 
 namespace App\Http\Middleware;
 
+use App\Helpers\Helper;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 
 class Authenticate extends Middleware
 {
     /**
-     * Get the path the user should be redirected to when they are not authenticated.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return string|null
+     * @inheritDoc
      */
     protected function redirectTo($request)
     {
         if (!$request->expectsJson()) {
-            return route('user_authentication.login_post');
+            return Helper::route('user_authentication.login_post');
         }
     }
 }

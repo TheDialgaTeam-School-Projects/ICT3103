@@ -1,10 +1,10 @@
 @extends('layouts.home')
 
-@section('title', 'User Dashboard')
+@section('title', 'Bank Account ' . $id)
 
 @section('content')
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <a class="navbar-brand" href="#">
+        <a class="navbar-brand" href="{{ route('dashboard.bank_account_list') }}">
             <i class="fas fa-piggy-bank" style="width: 30px; height: 30px;"></i>
             <span class="navbar-brand mb-0 h1">ICT3x03 Bank Demo</span>
         </a>
@@ -15,7 +15,7 @@
         <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="{{ route('dashboard.bank_account_list') }}">Home <span class="sr-only">(current)</span></a>
                 </li>
             </ul>
             <div class="btn-group">
@@ -33,7 +33,13 @@
             </div>
         </div>
     </nav>
-    <div class="container mt-3" style="background-color: white;">
-
+    <div class="container p-4" style="background-color: white;">
+        <h2>Bank Account {{ $id }}</h2>
+        <hr />
+        <span>Quick Actions: </span>
+        <span><a class="btn btn-primary" href="#" role="button">Transfer</a></span>
+        <hr />
+        <h4>List of transactions:</h4>
+        <hr />
     </div>
 @endsection

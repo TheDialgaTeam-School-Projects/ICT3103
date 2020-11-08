@@ -1,11 +1,11 @@
 <?php
 /** @noinspection PhpUnhandledExceptionInspection */
-
 /** @noinspection PhpDocMissingThrowsInspection */
 
 namespace App\Helpers\Traits;
 
 use Illuminate\Container\Container;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 
@@ -21,28 +21,23 @@ trait ViewHelperTrait
     /**
      * Get the evaluated view contents for the given view.
      *
-     * @param string $view
-     * @param array $data
-     * @return View
+     * @param string|null $view
+     * @param Arrayable|array $data
+     * @param array $mergeData
+     * @return View|ViewFactory
      */
-    public static function view(string $view, array $data = []): View
+    public static function view(string $view, array $data = [], $mergeData = []): View
     {
-        return self::getView()->make($view, $data);
-    }
+        $factory = self::getView();
 
-    /**
-     * Get the evaluated view contents with alert message for the given view.
-     *
-     * @param string $view
-     * @param array $data
-     * @return View
-     */
-    public static function viewWithAlertMessage(string $view, array $data = []): View
-    {
-        return self::getView()->make($view, array_merge([
+        if (func_num_args() === 0) {
+            return $factory;
+        }
+
+        return $factory->make($view, $data, array_merge([
             'alertType' => self::getSession()->get('alertType'),
             'alertMessage' => self::getSession()->get('alertMessage'),
-        ], $data));
+        ], $mergeData));
     }
 
     /**

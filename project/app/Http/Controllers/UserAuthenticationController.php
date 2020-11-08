@@ -46,7 +46,7 @@ class UserAuthenticationController extends Controller
             $this->resetGlobalLockoutFailedCount(self::USER_LOGIN_VIEW);
             $userAccount->resetFailedCount($formInputs['username']);
             $userSession->logUserSession($formInputs['username'], $request->ip());
-            return $this->redirectToRoute('user_authentication.login_2fa_get');
+            return $this->route('user_authentication.login_2fa_get');
         });
     }
 
@@ -99,7 +99,7 @@ class UserAuthenticationController extends Controller
     {
         Auth::logout();
         $this->flashAlertMessage('success', $this->__('auth.logged_out'));
-        return $this->redirectToRoute('user_authentication.login_get');
+        return $this->route('user_authentication.login_get');
     }
 
     public function login_check()
@@ -109,7 +109,7 @@ class UserAuthenticationController extends Controller
         if ($isTwoFactorVerified) {
             return $this->sendUserToDashboard(true);
         } else {
-            return $this->redirectToRoute('user_authentication.login_2fa_get');
+            return $this->route('user_authentication.login_2fa_get');
         }
     }
 
@@ -119,6 +119,6 @@ class UserAuthenticationController extends Controller
             $this->getSession()->put(self::LOGIN_VERIFIED_SESSION_TOKEN, true);
         }
 
-        return $this->redirectToRoute('dashboard.index');
+        return $this->route('dashboard.bank_account_list');
     }
 }

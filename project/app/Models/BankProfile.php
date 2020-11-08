@@ -126,4 +126,10 @@ class BankProfile extends Model
         $bankProfile = $this->find($id);
         return isset($bankProfile, $bankProfile->userAccount);
     }
+
+    public function isBankAccountExist(int $bankProfileId, string $id): bool
+    {
+        $bankProfile = $this->find($bankProfileId);
+        return $bankProfile->bankAccounts->contains('id', $id);
+    }
 }

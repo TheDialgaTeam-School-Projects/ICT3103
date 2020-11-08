@@ -1,6 +1,5 @@
 <?php
 /** @noinspection PhpUnhandledExceptionInspection */
-
 /** @noinspection PhpDocMissingThrowsInspection */
 
 namespace App\Helpers\Traits;
@@ -11,12 +10,32 @@ use Illuminate\Session\Store;
 
 trait SessionHelperTrait
 {
-    use ConfigHelperTrait, TranslatorHelperTrait;
-
     /**
      * @var Store|SessionManager
      */
     private static $session;
+
+    /**
+     * Get / set the specified session value.
+     *
+     * If an array is passed as the key, we will assume you want to set an array of values.
+     *
+     * @param  array|string|null  $key
+     * @param  mixed  $default
+     * @return mixed|Store|SessionManager
+     */
+    public static function session($key = null, $default = null)
+    {
+        if (is_null($key)) {
+            return self::getSession();
+        }
+
+        if (is_array($key)) {
+            self::getSession()->put($key);
+        }
+
+        return self::getSession()->get($key, $default);
+    }
 
     /**
      * Flash alert message to the session.

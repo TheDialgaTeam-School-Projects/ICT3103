@@ -110,7 +110,8 @@ if [ "$2" == "up" ]; then
     sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan view:clear
   fi
 
-  sudo chown -R "$(whoami)":"$(whoami)" ./../project
+  # shellcheck disable=SC2046
+  sudo chown -R $(whoami):$(whoami) ./../project
   exit 0
 elif [ "$2" == "update" ]; then
   sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec node npm update
@@ -137,7 +138,8 @@ elif [ "$2" == "update" ]; then
     sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
   fi
 
-  sudo chown -R "$(whoami)":"$(whoami)" ./../project
+  # shellcheck disable=SC2046
+  sudo chown -R $(whoami):$(whoami) ./../project
   exit 0
 fi
 
@@ -147,16 +149,20 @@ if [ "$2" == "shell" ]; then
 elif [ "$2" == "composer" ]; then
   sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website composer "${@:3}"
   sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
-  sudo chown -R "$(whoami)":"$(whoami)" ./../project
+  # shellcheck disable=SC2046
+  sudo chown -R $(whoami):$(whoami) ./../project
 elif [ "$2" == "npm" ]; then
   sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec node npm "${@:3}"
-  sudo chown -R "$(whoami)":"$(whoami)" ./../project
+  # shellcheck disable=SC2046
+  sudo chown -R $(whoami):$(whoami) ./../project
 elif [ "$2" == "laravel" ] || [ "$2" == "artisan" ]; then
   sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website php artisan "${@:3}"
   sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" exec website chmod -R o+w /var/www/html/storage /var/www/html/bootstrap/cache
-  sudo chown -R "$(whoami)":"$(whoami)" ./../project
+  # shellcheck disable=SC2046
+  sudo chown -R $(whoami):$(whoami) ./../project
 elif [ "$2" == "chown" ]; then
-  sudo chown -R "$(whoami)":"$(whoami)" ./../project
+  # shellcheck disable=SC2046
+  sudo chown -R $(whoami):$(whoami) ./../project
 else
   sudo docker-compose -f "docker-compose-${BUILD_ENVIRONMENT}.yml" "${@:2}"
 fi

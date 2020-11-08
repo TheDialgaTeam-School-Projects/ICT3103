@@ -21,7 +21,7 @@ class RedirectIfSessionKeyNotFound
     {
         if (!$request->session()->has($key)) {
             Helper::flashAlertMessage('error', Helper::__('common.invalid_session'));
-            return redirect()->route($route);
+            return Helper::route($route);
         }
 
         return $next($request);

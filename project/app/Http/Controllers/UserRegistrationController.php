@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App;
 use App\Http\Requests\UserRegisterCreateFormRequest;
 use App\Http\Requests\UserRegisterIdentifyFormRequest;
 use App\Http\Requests\UserRegisterVerifyFormRequest;
@@ -30,7 +31,7 @@ class UserRegistrationController extends Controller
             $formInputs = $request->validated();
 
             if (!$bankProfile->isValidBankProfile($formInputs['identification_id'], $formInputs['date_of_birth'])) {
-                // User seem to have failed the identification check on the bank profile, this is probably because of typo or trying to brute force their way through.
+                // User entered invalid bank profile.
                 $this->incrementGlobalLockoutFailedCount(self::REGISTER_IDENTIFY_VIEW);
                 $this->flashAlertMessage('error', $this->__('registration.user_identify_failed'));
                 return $this->view(self::REGISTER_IDENTIFY_VIEW);
@@ -50,15 +51,23 @@ class UserRegistrationController extends Controller
             $this->resetGlobalLockoutFailedCount(self::REGISTER_IDENTIFY_VIEW);
             $this->getSession()->put(self::BANK_PROFILE_ID_SESSION_KEY, $bankProfileId);
 
-            return $this->redirectToRoute('user_registration.register_verify_get');
+            return $this->route('user_registration.register_verify_get');
         });
     }
 
     public function register_verify_get(Request $request, AuthyService $authyService)
     {
+        if (App::isLocal()) {
+            // If application is local development environment, skip 2FA as this consume API cost for debugging.
+            $this->getSession()->put(self::REGISTER_USER_VERIFIED_SESSION_KEY, true);
+            return $this->route('user_registration.register_create_get');
+        }
+
+        // Else on the production environment, do verify 2FA before continuing.
         $bankProfileId = $this->getSession()->get(self::BANK_PROFILE_ID_SESSION_KEY);
         $isSmsForced = $request->input('force_sms', false);
 
+        // Request for sms message.
         if (!$authyService->requestSms($bankProfileId, $isSmsForced, $reason)) {
             $this->flashAlertMessage('error', $reason);
         }
@@ -82,7 +91,7 @@ class UserRegistrationController extends Controller
             // User has successfully verified and should now bring you to register page.
             $this->resetGlobalLockoutFailedCount(self::REGISTER_VERIFY_VIEW);
             $this->getSession()->put(self::REGISTER_USER_VERIFIED_SESSION_KEY, true);
-            return $this->redirectToRoute('user_registration.register_create_get');
+            return $this->route('user_registration.register_create_get');
         });
     }
 
@@ -98,8 +107,8 @@ class UserRegistrationController extends Controller
 
         $userAccount->createAccount($formInputs['username'], $formInputs['password'], $bankProfileId);
 
-        $this->getSession()->forget('bank_profile_id');
+        $this->getSession()->forget([self::BANK_PROFILE_ID_SESSION_KEY, self::REGISTER_USER_VERIFIED_SESSION_KEY]);
         $this->flashAlertMessage('success', 'User has been successfully created!');
-        return $this->redirectToRoute('user_authentication.login_get');
+        return $this->route('user_authentication.login_get');
     }
 }

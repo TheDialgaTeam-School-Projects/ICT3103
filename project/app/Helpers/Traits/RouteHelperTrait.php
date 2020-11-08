@@ -1,6 +1,5 @@
 <?php
 /** @noinspection PhpUnhandledExceptionInspection */
-
 /** @noinspection PhpDocMissingThrowsInspection */
 
 namespace App\Helpers\Traits;
@@ -44,7 +43,7 @@ trait RouteHelperTrait
      * Generate the URL to a named route.
      *
      * @param array|string $name
-     * @param array $parameters
+     * @param mixed $parameters
      * @param bool $absolute
      * @return string
      */
@@ -71,7 +70,7 @@ trait RouteHelperTrait
      * @param mixed $parameters
      * @return string
      */
-    public static function secure_url(string $path, $parameters = [])
+    public static function secure_url(string $path, $parameters = []): string
     {
         return self::url($path, $parameters, true);
     }

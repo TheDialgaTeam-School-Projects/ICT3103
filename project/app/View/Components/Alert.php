@@ -2,6 +2,7 @@
 
 namespace App\View\Components;
 
+use App\Helpers\Helper;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
@@ -56,6 +57,6 @@ class Alert extends Component
      */
     public function render()
     {
-        return view('components.alert');
+        return Helper::view('components.alert');
     }
 }

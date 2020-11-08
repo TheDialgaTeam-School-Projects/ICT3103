@@ -29,10 +29,13 @@ class Handler extends ExceptionHandler
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
     }
 
+    /**
+     * @inheritDoc
+     */
     protected function unauthenticated($request, AuthenticationException $exception)
     {
         return $request->expectsJson()

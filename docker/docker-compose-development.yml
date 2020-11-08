@@ -15,7 +15,6 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USERNAME}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    restart: on-failure
 
   node:
     image: node:lts-alpine
@@ -26,7 +25,6 @@ services:
       - ict3x03-network
     working_dir: /var/www/html
     command: sh -c "npm install && npm run dev && npm run watch"
-    restart: on-failure
 
   website:
     build:
@@ -46,7 +44,6 @@ services:
     depends_on:
       - database
       - node
-    restart: on-failure
 
 volumes:
   ict3x03-volume:

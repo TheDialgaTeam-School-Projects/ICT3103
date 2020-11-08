@@ -130,6 +130,11 @@ class UserAccount extends Authenticatable
         return $this->find($username)->bank_profile_id;
     }
 
+    public function getBankAccounts(string $username)
+    {
+        return $this->getUserAccount($username)->bankProfile->bankAccounts;
+    }
+
     public function isServingTimeout(string $username, int &$duration = null): bool
     {
         $userAccount = $this->find($username);

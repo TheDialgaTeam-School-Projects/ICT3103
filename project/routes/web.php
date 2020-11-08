@@ -52,5 +52,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/logout', [UserAuthenticationController::class, 'logout'])->name('user_authentication.logout');
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+    Route::get('/dashboard/account/list', [DashboardController::class, 'bank_account_list'])->name('dashboard.bank_account_list');
+    Route::get('/dashboard/account/{id}', [DashboardController::class, 'bank_account_transaction'])->name('dashboard.bank_account_transaction');
 });
