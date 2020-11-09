@@ -73,4 +73,10 @@ class BankAccount extends Model
     {
         return $this->hasMany(BankTransaction::class, 'bank_account_id');
     }
+
+    public function isBankAccountExist($id): bool
+    {
+        $bankAccount = $this->find($id);
+        return isset($bankAccount);
+    }
 }

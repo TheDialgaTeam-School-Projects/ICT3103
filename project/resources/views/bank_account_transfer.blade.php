@@ -35,7 +35,7 @@
                 </small>
             </div>
             <div class="form-group">
-                <label for="amount">Amount:</label>
+                <label for="amount">Amount: (Current Balance: {{ sprintf('$%.2f', $balance) }})</label>
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
                         <span class="input-group-text">$</span>
