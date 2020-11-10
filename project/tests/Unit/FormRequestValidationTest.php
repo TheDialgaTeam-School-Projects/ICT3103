@@ -7,8 +7,6 @@ use App\Http\Requests\UserRegisterCreateFormRequest;
 use App\Http\Requests\UserRegisterIdentifyFormRequest;
 use App\Http\Requests\UserRegisterVerifyFormRequest;
 use App\Http\Requests\UserTwoFactorLoginFormRequest;
-use App\Http\Requests\UserTwoFactorRegisterFormRequest;
-use App\Rules\MobileNumber;
 use App\Rules\Password;
 use PHPUnit\Framework\TestCase;
 
@@ -55,15 +53,6 @@ class FormRequestValidationTest extends TestCase
         $formRequest = new UserTwoFactorLoginFormRequest();
         $this->assertEquals([
             'two_factor_token' => ['required', 'digits:6'],
-        ], $formRequest->rules());
-    }
-
-    public function testUserTwoFactorRegisterFormRequestRequiredRules()
-    {
-        $formRequest = new UserTwoFactorRegisterFormRequest();
-        $this->assertEquals([
-            'email_address' => ['required', 'email:rfc'],
-            'mobile_number' => ['required', new MobileNumber()],
         ], $formRequest->rules());
     }
 }

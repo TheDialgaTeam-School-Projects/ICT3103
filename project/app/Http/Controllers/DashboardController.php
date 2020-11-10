@@ -78,6 +78,12 @@ class DashboardController extends Controller
         }
 
         $formInputs = $request->validated();
+
+        if ($formInputs['bank_account_id_to'] === $id) {
+            $this->flashAlertMessage('error', 'You cannot transfer to yourself.');
+            return $this->route('dashboard.bank_account_transfer_get', ['id' => $id]);
+        }
+
         $bankAccountFrom = $bankAccount->find($id);
 
         if ($formInputs['amount'] > $bankAccountFrom->balance) {
