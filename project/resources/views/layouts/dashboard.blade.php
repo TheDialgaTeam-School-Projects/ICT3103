@@ -13,8 +13,9 @@
         <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                 <li class="nav-item active">
-                    <a class="nav-link" href="{{ App\Helpers\Helper::route('dashboard.bank_account_list') }}">Home <span
-                            class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="{{ App\Helpers\Helper::route('dashboard.bank_account_list') }}">
+                        Home <span class="sr-only">(current)</span>
+                    </a>
                 </li>
             </ul>
             <div class="btn-group">
@@ -23,12 +24,9 @@
                     <i class="fas fa-user-circle"></i> {{ $username }}
                 </button>
                 <div class="dropdown-menu dropdown-menu-right">
-                    <a class="dropdown-item" href="#">My Profile</a>
-                    <a class="dropdown-item" href="#">Change Password</a>
-                    <a class="dropdown-item" href="{{ App\Helpers\Helper::route('user_registration.register_2fa_get') }}">Update 2FA
-                        Token</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="{{ App\Helpers\Helper::route('user_authentication.logout') }}">Logout</a>
+                    <a class="dropdown-item" href="{{ App\Helpers\Helper::route('user_authentication.logout') }}">
+                        Logout
+                    </a>
                 </div>
             </div>
         </div>
