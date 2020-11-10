@@ -5,7 +5,7 @@
 @section('content')
     <div class="register-container">
         <form class="register-form p-3 rounded"
-              method="post" action="{{ \App\Helpers\Helper::route('dashboard.bank_account_transfer_confirm_post') }}">
+              method="post" action="{{ \App\Helpers\Helper::route('dashboard.bank_account_transfer_confirm_post', ['id' => $id]) }}">
             @if (isset($alertType, $alertMessage))
                 <x-alert :alert-type="$alertType" :alert-message="$alertMessage"></x-alert>
             @endif
