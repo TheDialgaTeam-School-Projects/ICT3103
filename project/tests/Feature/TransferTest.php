@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\UserAuthenticationController;
 use App\Models\UserAccount;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -16,7 +17,7 @@ class TransferTest extends TestCase
     {
         $this->refreshTestDatabase();
 
-        $request = $this->actingAs((new UserAccount())->getUserAccount('jianmingyong'));
+        $request = $this->actingAs((new UserAccount())->getUserAccount('jianmingyong'))->withSession([UserAuthenticationController::LOGIN_VERIFIED_SESSION_TOKEN => true]);
 
         $uri = '/dashboard/account/0018527414/transfer';
 
@@ -34,7 +35,7 @@ class TransferTest extends TestCase
     {
         $this->refreshTestDatabase();
 
-        $request = $this->actingAs((new UserAccount())->getUserAccount('jianmingyong'));
+        $request = $this->actingAs((new UserAccount())->getUserAccount('jianmingyong'))->withSession([UserAuthenticationController::LOGIN_VERIFIED_SESSION_TOKEN => true]);
 
         $uri = '/dashboard/account/0018527414/transfer';
         $data = [

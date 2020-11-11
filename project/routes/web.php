@@ -52,17 +52,20 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/logout', [UserAuthenticationController::class, 'logout'])->name('user_authentication.logout');
 
-    Route::get('/dashboard/account/list', [DashboardController::class, 'bank_account_list'])->name('dashboard.bank_account_list');
-    Route::get('/dashboard/account/{id}', [DashboardController::class, 'bank_account_transaction'])->name('dashboard.bank_account_transaction');
-    Route::get('/dashboard/account/{id}/transfer', [DashboardController::class, 'bank_account_transfer_get'])->name('dashboard.bank_account_transfer_get');
-    Route::post('/dashboard/account/{id}/transfer', [DashboardController::class, 'bank_account_transfer_post'])->name('dashboard.bank_account_transfer_post');
+    Route::middleware(sprintf('session:%s,user_authentication.login_2fa_get', UserAuthenticationController::LOGIN_VERIFIED_SESSION_TOKEN))->group(function () {
+        Route::get('/dashboard/account/list', [DashboardController::class, 'bank_account_list'])->name('dashboard.bank_account_list');
+        Route::get('/dashboard/account/{id}', [DashboardController::class, 'bank_account_transaction'])->name('dashboard.bank_account_transaction');
+        Route::get('/dashboard/account/{id}/transfer', [DashboardController::class, 'bank_account_transfer_get'])->name('dashboard.bank_account_transfer_get');
+        Route::post('/dashboard/account/{id}/transfer', [DashboardController::class, 'bank_account_transfer_post'])->name('dashboard.bank_account_transfer_post');
 
-    Route::middleware([
-        sprintf('session:%s,dashboard.bank_account_list', DashboardController::BANK_ACCOUNT_ID_FROM_SESSION_KEY),
-        sprintf('session:%s,dashboard.bank_account_list', DashboardController::BANK_ACCOUNT_ID_TO_SESSION_KEY),
-        sprintf('session:%s,dashboard.bank_account_list', DashboardController::AMOUNT_SESSION_KEY),
-    ])->group(function () {
-        Route::get('/dashboard/account/{id}/transfer/confirm', [DashboardController::class, 'bank_account_transfer_confirm_get'])->name('dashboard.bank_account_transfer_confirm_get');
-        Route::post('/dashboard/account/{id}/transfer/confirm', [DashboardController::class, 'bank_account_transfer_confirm_post'])->name('dashboard.bank_account_transfer_confirm_post');
+        Route::middleware([
+            sprintf('session:%s,dashboard.bank_account_list', DashboardController::BANK_ACCOUNT_ID_FROM_SESSION_KEY),
+            sprintf('session:%s,dashboard.bank_account_list', DashboardController::BANK_ACCOUNT_ID_TO_SESSION_KEY),
+            sprintf('session:%s,dashboard.bank_account_list', DashboardController::AMOUNT_SESSION_KEY),
+        ])->group(function () {
+            Route::get('/dashboard/account/{id}/transfer/confirm', [DashboardController::class, 'bank_account_transfer_confirm_get'])->name('dashboard.bank_account_transfer_confirm_get');
+            Route::post('/dashboard/account/{id}/transfer/confirm', [DashboardController::class, 'bank_account_transfer_confirm_post'])->name('dashboard.bank_account_transfer_confirm_post');
+        });
     });
+
 });

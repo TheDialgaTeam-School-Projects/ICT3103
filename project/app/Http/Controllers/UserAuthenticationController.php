@@ -98,6 +98,7 @@ class UserAuthenticationController extends Controller
     public function logout()
     {
         Auth::logout();
+        $this->getSession()->forget(self::LOGIN_VERIFIED_SESSION_TOKEN);
         $this->flashAlertMessage('success', $this->__('auth.logged_out'));
         return $this->route('user_authentication.login_get');
     }
