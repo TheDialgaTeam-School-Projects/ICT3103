@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="" tests="15" assertions="15" errors="0" warnings="0" failures="0" skipped="0" time="0.259672">
+    <testsuite name="Unit" tests="14" assertions="14" errors="0" warnings="0" failures="0" skipped="0" time="0.036705">
+      <testsuite name="Tests\Unit\FormRequestValidationTest" file="/var/www/html/tests/Unit/FormRequestValidationTest.php" tests="5" assertions="5" errors="0" warnings="0" failures="0" skipped="0" time="0.033519">
+        <testcase name="testUserLoginFormRequestRequiredRules" class="Tests\Unit\FormRequestValidationTest" classname="Tests.Unit.FormRequestValidationTest" file="/var/www/html/tests/Unit/FormRequestValidationTest.php" line="15" assertions="1" time="0.027604"/>
+        <testcase name="testUserRegisterCreateFormRequestRequiredRules" class="Tests\Unit\FormRequestValidationTest" classname="Tests.Unit.FormRequestValidationTest" file="/var/www/html/tests/Unit/FormRequestValidationTest.php" line="24" assertions="1" time="0.003492"/>
+        <testcase name="testUserRegisterIdentifyFormRequestRequiredRules" class="Tests\Unit\FormRequestValidationTest" classname="Tests.Unit.FormRequestValidationTest" file="/var/www/html/tests/Unit/FormRequestValidationTest.php" line="34" assertions="1" time="0.000640"/>
+        <testcase name="testUserRegisterVerifyFormRequestRequiredRules" class="Tests\Unit\FormRequestValidationTest" classname="Tests.Unit.FormRequestValidationTest" file="/var/www/html/tests/Unit/FormRequestValidationTest.php" line="43" assertions="1" time="0.000852"/>
+        <testcase name="testUserTwoFactorLoginFormRequestRequiredRules" class="Tests\Unit\FormRequestValidationTest" classname="Tests.Unit.FormRequestValidationTest" file="/var/www/html/tests/Unit/FormRequestValidationTest.php" line="51" assertions="1" time="0.000931"/>
+      </testsuite>
+      <testsuite name="Tests\Unit\PasswordRuleTest" file="/var/www/html/tests/Unit/PasswordRuleTest.php" tests="9" assertions="9" errors="0" warnings="0" failures="0" skipped="0" time="0.003186">
+        <testcase name="testPasses" class="Tests\Unit\PasswordRuleTest" classname="Tests.Unit.PasswordRuleTest" file="/var/www/html/tests/Unit/PasswordRuleTest.php" line="20" assertions="1" time="0.001137"/>
+        <testcase name="testLettersOnly" class="Tests\Unit\PasswordRuleTest" classname="Tests.Unit.PasswordRuleTest" file="/var/www/html/tests/Unit/PasswordRuleTest.php" line="25" assertions="1" time="0.000884"/>
+        <testcase name="testNumbersOnly" class="Tests\Unit\PasswordRuleTest" classname="Tests.Unit.PasswordRuleTest" file="/var/www/html/tests/Unit/PasswordRuleTest.php" line="30" assertions="1" time="0.000169"/>
+        <testcase name="testSpecialCharacters" class="Tests\Unit\PasswordRuleTest" classname="Tests.Unit.PasswordRuleTest" file="/var/www/html/tests/Unit/PasswordRuleTest.php" line="35" assertions="1" time="0.000168"/>
+        <testcase name="testLettersWithCaps" class="Tests\Unit\PasswordRuleTest" classname="Tests.Unit.PasswordRuleTest" file="/var/www/html/tests/Unit/PasswordRuleTest.php" line="40" assertions="1" time="0.000161"/>
+        <testcase name="testLettersAndNumbers" class="Tests\Unit\PasswordRuleTest" classname="Tests.Unit.PasswordRuleTest" file="/var/www/html/tests/Unit/PasswordRuleTest.php" line="45" assertions="1" time="0.000169"/>
+        <testcase name="testLettersWithCapsAndNumbers" class="Tests\Unit\PasswordRuleTest" classname="Tests.Unit.PasswordRuleTest" file="/var/www/html/tests/Unit/PasswordRuleTest.php" line="50" assertions="1" time="0.000158"/>
+        <testcase name="testLettersWithCapsAndSpecial" class="Tests\Unit\PasswordRuleTest" classname="Tests.Unit.PasswordRuleTest" file="/var/www/html/tests/Unit/PasswordRuleTest.php" line="55" assertions="1" time="0.000159"/>
+        <testcase name="testSpecialCharactersAndNumbers" class="Tests\Unit\PasswordRuleTest" classname="Tests.Unit.PasswordRuleTest" file="/var/www/html/tests/Unit/PasswordRuleTest.php" line="60" assertions="1" time="0.000182"/>
+      </testsuite>
+    </testsuite>
+    <testsuite name="Feature" tests="1" assertions="1" errors="0" warnings="0" failures="0" skipped="0" time="0.222967">
+      <testsuite name="Tests\Feature\ExampleTest" file="/var/www/html/tests/Feature/ExampleTest.php" tests="1" assertions="1" errors="0" warnings="0" failures="0" skipped="0" time="0.222967">
+        <testcase name="testBasicTest" class="Tests\Feature\ExampleTest" classname="Tests.Feature.ExampleTest" file="/var/www/html/tests/Feature/ExampleTest.php" line="14" assertions="1" time="0.222967"/>
+      </testsuite>
+    </testsuite>
+  </testsuite>
+</testsuites>
