@@ -2,6 +2,8 @@
 
 namespace Tests\Unit;
 
+use App\Http\Requests\BankAccountTransferConfirmFormRequest;
+use App\Http\Requests\BankAccountTransferFormRequest;
 use App\Http\Requests\UserLoginFormRequest;
 use App\Http\Requests\UserRegisterCreateFormRequest;
 use App\Http\Requests\UserRegisterIdentifyFormRequest;
@@ -12,6 +14,23 @@ use PHPUnit\Framework\TestCase;
 
 class FormRequestValidationTest extends TestCase
 {
+    public function testBankAccountTransferConfirmFormRequestRequiredRules()
+    {
+        $formRequest = new BankAccountTransferConfirmFormRequest();
+        $this->assertEquals([
+            'two_factor_token' => ['required', 'digits:6'],
+        ], $formRequest->rules());
+    }
+
+    public function testBankAccountTransferFormRequestRequiredRules()
+    {
+        $formRequest = new BankAccountTransferFormRequest();
+        $this->assertEquals([
+            'bank_account_id_to' => ['required', 'string', 'max:255', 'exists:App\Models\BankAccount,id'],
+            'amount' => ['required', 'regex:/(?:\\d+\\.\\d{1,2}|0\\.\\d{1,2}|\\d+)/'],
+        ], $formRequest->rules());
+    }
+
     public function testUserLoginFormRequestRequiredRules()
     {
         $formRequest = new UserLoginFormRequest();

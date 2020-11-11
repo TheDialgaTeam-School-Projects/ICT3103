@@ -69,7 +69,7 @@ class BankAccountSeeder extends Seeder
                         'account_type' => 'savings',
                     ],
                     [
-                        'id' => '0018527415',
+                        'id' => '0018527414',
                         'balance' => 1000,
                         'account_type' => 'savings',
                     ],
@@ -91,7 +91,7 @@ class BankAccountSeeder extends Seeder
                 ],
                 'BankAccounts' => [
                     [
-                        'id' => '0018527414',
+                        'id' => '0018527415',
                         'balance' => 1000,
                         'account_type' => 'savings',
                     ],
@@ -101,7 +101,57 @@ class BankAccountSeeder extends Seeder
                         'account_type' => 'savings',
                     ],
                 ],
-            ]
+            ],
+            [
+                'BankProfile' => [
+                    'identification_id' => 'najib',
+                    'date_of_birth' => Carbon::create(1998, 2, 24),
+                    'name' => 'Test',
+                    'email' => 'jianming1993@gmail.com',
+                ],
+                'BankProfileOtp' => [
+                    'mobile_number' => '86067737',
+                ],
+                'BankAccounts' => [
+                    [
+                        'id' => '0018527417',
+                        'balance' => 1000,
+                        'account_type' => 'savings',
+                    ],
+                    [
+                        'id' => '0018527418',
+                        'balance' => 1000,
+                        'account_type' => 'savings',
+                    ],
+                ],
+                'UserAccount' => [
+                    'username' => 'najib',
+                    'password' => '$2y$10$TpsE5rDu/qpbANDBYY2pLeqoIMFYuzUdwrk1CrAichlL4igmQSiqO',
+                ],
+            ],
+            [
+                'BankProfile' => [
+                    'identification_id' => 's9215805E!',
+                    'date_of_birth' => Carbon::create(1992, 5, 10),
+                    'name' => 'Test',
+                    'email' => 'jianming1993@gmail.com',
+                ],
+                'BankProfileOtp' => [
+                    'mobile_number' => '96211883',
+                ],
+                'BankAccounts' => [
+                    [
+                        'id' => '0018527419',
+                        'balance' => 1000,
+                        'account_type' => 'savings',
+                    ],
+                    [
+                        'id' => '0018527420',
+                        'balance' => 1000,
+                        'account_type' => 'savings',
+                    ],
+                ],
+            ],
         ];
 
         foreach ($bankAccounts as $bankAccount) {

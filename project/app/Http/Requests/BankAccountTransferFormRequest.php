@@ -26,7 +26,7 @@ class BankAccountTransferFormRequest extends FormRequest
     {
         return [
             'bank_account_id_to' => ['required', 'string', 'max:255', 'exists:App\Models\BankAccount,id'],
-            'amount' => ['required', 'regex:/(?:\\d+\\.\\d{1,2}|0\\.\\d{1,2}|\\d+)/']
+            'amount' => ['required', 'regex:/(?:\\d+\\.\\d{1,2}|0\\.\\d{1,2}|\\d+)/'],
         ];
     }
 }

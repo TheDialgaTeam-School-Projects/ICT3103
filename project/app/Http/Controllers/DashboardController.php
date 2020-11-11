@@ -21,17 +21,17 @@ class DashboardController extends Controller
     public const BANK_ACCOUNT_ID_TO_SESSION_KEY = "BANK_ACCOUNT_ID_TO_SESSION_KEY";
     public const AMOUNT_SESSION_KEY = "AMOUNT_SESSION_KEY";
 
-    public function bank_account_list(UserAccount $userAccount)
-    {
-        return $this->view('bank_account_list', [
-            'bankAccounts' => $userAccount->getBankAccounts(Auth::id()),
-        ]);
-    }
-
     public function view(string $view, array $data = [], $mergeData = []): View
     {
         return parent::view($view, $data, [
             'username' => Auth::id()
+        ]);
+    }
+
+    public function bank_account_list(UserAccount $userAccount)
+    {
+        return $this->view('bank_account_list', [
+            'bankAccounts' => $userAccount->getBankAccounts(Auth::id()),
         ]);
     }
 
