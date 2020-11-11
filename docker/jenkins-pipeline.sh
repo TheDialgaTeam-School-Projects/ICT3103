@@ -17,7 +17,10 @@ docker build --build-arg BUILD_ENVIRONMENT=development -t ict3x03/php:7.4-apache
 
 cd "$PROJECT_DIR" || exit
 
-echo "APP_KEY=" >'.env'
+{
+  echo "APP_KEY="
+  echo "AUTHY_API_KEY=${AUTHY_API_KEY}"
+} >'.env'
 
 docker run -v "$PROJECT_DIR":/var/www/html --name ICT3x03-website --rm ict3x03/php:7.4-apache-development composer install
 docker run -v "$PROJECT_DIR":/var/www/html --name ICT3x03-node --rm node:lts-alpine sh -c "cd /var/www/html && npm install && npm run dev"
