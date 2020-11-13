@@ -91,6 +91,11 @@ class DashboardController extends Controller
             return $this->route('dashboard.bank_account_transfer_get', ['id' => $id]);
         }
 
+        if ($formInputs['amount'] <= 0) {
+            $this->flashAlertMessage('error', 'Invalid amount to transfer.');
+            return $this->route('dashboard.bank_account_transfer_get', ['id' => $id]);
+        }
+
         $this->getSession()->put([
             self::BANK_ACCOUNT_ID_FROM_SESSION_KEY => $id,
             self::BANK_ACCOUNT_ID_TO_SESSION_KEY => $formInputs['bank_account_id_to'],
