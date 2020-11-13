@@ -24,7 +24,7 @@ class TransferTest extends TestCase
         $data = [
             'bank_account_id_from' => '0018527414',
             'bank_account_id_to'  => '0000000000',
-            'amount'  => '100',
+            'amount'  => '101',
         ];
 
         $response = $request->post($uri, $data);
@@ -41,7 +41,7 @@ class TransferTest extends TestCase
         $data = [
             'bank_account_id_from' => '0018527414',
             'bank_account_id_to' => '0018527413',
-            'amount'  => '1001'
+            'amount'  => '1101'
         ];
 
         $response = $request->post($uri, $data);
