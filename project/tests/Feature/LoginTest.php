@@ -48,7 +48,7 @@ class LoginTest extends TestCase
 
         $data = [
             'username' => 'najib',
-            'password' => 'sodnfosdnfdjsnfada',
+            'password' => 'sodnfosDNfdj@!',
         ];
 
         $response = $this->post('/', $data);
