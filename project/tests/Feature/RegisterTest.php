@@ -17,7 +17,7 @@ class RegisterTest extends TestCase
         $this->refreshTestDatabase();
 
         $data = [
-            'identification_id' => 's9215805E!',
+            'identification_id' => 's9211883F!',
             'date_of_birth' => '1992-05-10',
         ];
 
@@ -30,7 +30,7 @@ class RegisterTest extends TestCase
         $this->refreshTestDatabase();
 
         $data = [
-            'identification_id' => 'S9215805E',
+            'identification_id' => 'S9211883F!',
             'date_of_birth' => '1992-05-10',
         ];
 
@@ -43,7 +43,7 @@ class RegisterTest extends TestCase
         $this->refreshTestDatabase();
 
         $data = [
-            'identification_id' => 's9215805E!',
+            'identification_id' => 's9211883F!',
             'date_of_birth' => '1992-10-05',
         ];
 
@@ -58,8 +58,8 @@ class RegisterTest extends TestCase
 
         $data = [
             'username' => 'jerry',
-            'password' => 's9215805E!',
-            'password_confirm' => 's9215805E!',
+            'password' => 's9211883F!',
+            'password_confirm' => 's9211883F!',
         ];
 
         $response = $this->withSession([
