@@ -30,7 +30,7 @@ class RegisterTest extends TestCase
         $this->refreshTestDatabase();
 
         $data = [
-            'identification_id' => 'S9211883F!',
+            'identification_id' => 'S9211883F',
             'date_of_birth' => '1992-05-10',
         ];
 

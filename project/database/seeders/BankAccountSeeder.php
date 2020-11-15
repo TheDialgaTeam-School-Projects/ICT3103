@@ -131,7 +131,7 @@ class BankAccountSeeder extends Seeder
             ],
             [
                 'BankProfile' => [
-                    'identification_id' => 's9215805E!',
+                    'identification_id' => 's9211883F!',
                     'date_of_birth' => Carbon::create(1992, 5, 10),
                     'name' => 'Test',
                     'email' => 'jianming1993@gmail.com',
